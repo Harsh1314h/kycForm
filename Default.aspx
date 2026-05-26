@@ -58,13 +58,17 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label" for="ddlBranch">Preferred Branch<span class="required-star">*</span></label>
+                        <label class="form-label" for="ddlBranch">Preferred Bank<span class="required-star">*</span></label>
                         <asp:DropDownList ID="ddlBranch" runat="server" CssClass="form-select">
-                            <asp:ListItem Value="">-- Select Branch --</asp:ListItem>
-                            <asp:ListItem Value="Main">Main Head Branch</asp:ListItem>
-                            <asp:ListItem Value="Downtown">Downtown Tech Park Branch</asp:ListItem>
-                            <asp:ListItem Value="North">North Hub Station Branch</asp:ListItem>
-                            <asp:ListItem Value="South">South Coastal Plaza Branch</asp:ListItem>
+                            <asp:ListItem Value="">-- Select Bank --</asp:ListItem>
+                            <asp:ListItem Value="SBI">State Bank of India (SBI)</asp:ListItem>
+                            <asp:ListItem Value="HDFC">HDFC Bank</asp:ListItem>
+                            <asp:ListItem Value="ICICI">ICICI Bank</asp:ListItem>
+                            <asp:ListItem Value="Axis">Axis Bank</asp:ListItem>
+                            <asp:ListItem Value="PNB">Punjab National Bank (PNB)</asp:ListItem>
+                            <asp:ListItem Value="BOB">Bank of Baroda</asp:ListItem>
+                            <asp:ListItem Value="Canara">Canara Bank</asp:ListItem>
+                            <asp:ListItem Value="Union">Union Bank of India</asp:ListItem>
                         </asp:DropDownList>
                     </div>
 
@@ -174,6 +178,77 @@
                 </div>
             </div>
 
+            <!-- ================== SECTION 4: PERSONAL INFORMATION ================== -->
+            <div class="section-card">
+                <div class="section-title">
+                    <i class="bi bi-person-lines-fill"></i>
+                    <span>SECTION 4: Personal Information</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="txtFullName">15. Full Legal Name<span class="required-star">*</span></label>
+                        <asp:TextBox ID="txtFullName" runat="server" CssClass="form-control" placeholder="Full name exactly as per ID proofs"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="txtFatherName">16. Father’s Name<span class="required-star">*</span></label>
+                        <asp:TextBox ID="txtFatherName" runat="server" CssClass="form-control" placeholder="Father's full name"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="txtMotherName">17. Mother’s Name<span class="required-star">*</span></label>
+                        <asp:TextBox ID="txtMotherName" runat="server" CssClass="form-control" placeholder="Mother's full name"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="txtSpouseGuardian">18. Spouse/Guardian Name (Care Of)<span class="required-star">*</span></label>
+                        <asp:TextBox ID="txtSpouseGuardian" runat="server" CssClass="form-control" placeholder="Spouse or Guardian name"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label" for="ddlMaritalStatus">19. Marital Status<span class="required-star">*</span></label>
+                        <asp:DropDownList ID="ddlMaritalStatus" runat="server" CssClass="form-select">
+                            <asp:ListItem Value="">-- Select Status --</asp:ListItem>
+                            <asp:ListItem Value="Single">Single</asp:ListItem>
+                            <asp:ListItem Value="Married">Married</asp:ListItem>
+                            <asp:ListItem Value="Widowed">Widowed</asp:ListItem>
+                            <asp:ListItem Value="Divorced">Divorced</asp:ListItem>
+                        </asp:DropDownList>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label" for="txtNationality">20. Nationality<span class="required-star">*</span></label>
+                        <asp:TextBox ID="txtNationality" runat="server" CssClass="form-control" Text="Indian" placeholder="e.g. Indian"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label" for="txtReligion">21. Religion</label>
+                        <asp:TextBox ID="txtReligion" runat="server" CssClass="form-control" placeholder="e.g. Hinduism, Islam, etc."></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label" for="ddlResidentialStatus">22. Residential Status<span class="required-star">*</span></label>
+                        <asp:DropDownList ID="ddlResidentialStatus" runat="server" CssClass="form-select">
+                            <asp:ListItem Value="">-- Select Status --</asp:ListItem>
+                            <asp:ListItem Value="Resident">Resident</asp:ListItem>
+                            <asp:ListItem Value="NRI">NRI (Non-Resident Indian)</asp:ListItem>
+                            <asp:ListItem Value="OCI">OCI (Overseas Citizen of India)</asp:ListItem>
+                            <asp:ListItem Value="PIO">PIO (Person of Indian Origin)</asp:ListItem>
+                        </asp:DropDownList>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="txtPlaceOfBirth">23. Place of Birth</label>
+                        <asp:TextBox ID="txtPlaceOfBirth" runat="server" CssClass="form-control" placeholder="City / Town / Village of birth"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="txtCountryOfBirth">24. Country of Birth</label>
+                        <asp:TextBox ID="txtCountryOfBirth" runat="server" CssClass="form-control" Text="India" placeholder="Country of birth"></asp:TextBox>
+                    </div>
+                </div>
+            </div>
+
             <!-- ================== SECTION 5: ADDRESS DETAILS ================== -->
             <div class="section-card">
                 <div class="section-title">
@@ -207,17 +282,44 @@
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label" for="ddlState">State<span class="required-star">*</span></label>
+                        <label class="form-label" for="ddlState">State / UT<span class="required-star">*</span></label>
                         <asp:DropDownList ID="ddlState" runat="server" CssClass="form-select">
-                            <asp:ListItem Value="">-- Select State --</asp:ListItem>
+                            <asp:ListItem Value="">-- Select State / UT --</asp:ListItem>
+                            <asp:ListItem Value="Andaman & Nicobar">Andaman and Nicobar Islands</asp:ListItem>
                             <asp:ListItem Value="Andhra Pradesh">Andhra Pradesh</asp:ListItem>
+                            <asp:ListItem Value="Arunachal Pradesh">Arunachal Pradesh</asp:ListItem>
+                            <asp:ListItem Value="Assam">Assam</asp:ListItem>
                             <asp:ListItem Value="Bihar">Bihar</asp:ListItem>
-                            <asp:ListItem Value="Delhi">Delhi</asp:ListItem>
+                            <asp:ListItem Value="Chandigarh">Chandigarh</asp:ListItem>
+                            <asp:ListItem Value="Chhattisgarh">Chhattisgarh</asp:ListItem>
+                            <asp:ListItem Value="Dadra & Nagar Haveli & Daman & Diu">Dadra & Nagar Haveli & Daman & Diu</asp:ListItem>
+                            <asp:ListItem Value="Delhi">Delhi (NCT)</asp:ListItem>
+                            <asp:ListItem Value="Goa">Goa</asp:ListItem>
                             <asp:ListItem Value="Gujarat">Gujarat</asp:ListItem>
+                            <asp:ListItem Value="Haryana">Haryana</asp:ListItem>
+                            <asp:ListItem Value="Himachal Pradesh">Himachal Pradesh</asp:ListItem>
+                            <asp:ListItem Value="Jammu & Kashmir">Jammu & Kashmir</asp:ListItem>
+                            <asp:ListItem Value="Jharkhand">Jharkhand</asp:ListItem>
                             <asp:ListItem Value="Karnataka">Karnataka</asp:ListItem>
+                            <asp:ListItem Value="Kerala">Kerala</asp:ListItem>
+                            <asp:ListItem Value="Ladakh">Ladakh</asp:ListItem>
+                            <asp:ListItem Value="Lakshadweep">Lakshadweep</asp:ListItem>
+                            <asp:ListItem Value="Madhya Pradesh">Madhya Pradesh</asp:ListItem>
                             <asp:ListItem Value="Maharashtra">Maharashtra</asp:ListItem>
+                            <asp:ListItem Value="Manipur">Manipur</asp:ListItem>
+                            <asp:ListItem Value="Meghalaya">Meghalaya</asp:ListItem>
+                            <asp:ListItem Value="Mizoram">Mizoram</asp:ListItem>
+                            <asp:ListItem Value="Nagaland">Nagaland</asp:ListItem>
+                            <asp:ListItem Value="Odisha">Odisha</asp:ListItem>
+                            <asp:ListItem Value="Puducherry">Puducherry</asp:ListItem>
+                            <asp:ListItem Value="Punjab">Punjab</asp:ListItem>
+                            <asp:ListItem Value="Rajasthan">Rajasthan</asp:ListItem>
+                            <asp:ListItem Value="Sikkim">Sikkim</asp:ListItem>
                             <asp:ListItem Value="Tamil Nadu">Tamil Nadu</asp:ListItem>
+                            <asp:ListItem Value="Telangana">Telangana</asp:ListItem>
+                            <asp:ListItem Value="Tripura">Tripura</asp:ListItem>
                             <asp:ListItem Value="Uttar Pradesh">Uttar Pradesh</asp:ListItem>
+                            <asp:ListItem Value="Uttarakhand">Uttarakhand</asp:ListItem>
                             <asp:ListItem Value="West Bengal">West Bengal</asp:ListItem>
                         </asp:DropDownList>
                     </div>
