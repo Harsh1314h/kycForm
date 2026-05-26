@@ -1,0 +1,26 @@
+# Visual Studio standard ignore rules
+.vs/
+[Dd]ebug/
+[Rr]elease/
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Mono/VS build files
+*.userprefs
+*.usertasks
+
+# SQL Server files
+*.mdf
+*.ldf
+*.sdf
+
+# Packages and published output
+packages/
+Publish/
+*.publishproj
+*.pubxml
+*.pubxml.user

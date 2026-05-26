@@ -1,0 +1,87 @@
+Task Name: Complete Extended KYC Form 
+Description: Please fill out all mandatory (*) fields accurately. This is required for identity verification, regulatory compliance, and account setup.
+
+🧾 SECTION 1: Basic Account Information
+1. Account Type:* -- Select Account Type --
+2. Customer Type:* (Individual / Non-Individual)
+3. Preferred Branch:* -- Select Branch --
+4. Date of Application:*
+ 
+
+📧 SECTION 2: Contact & Verification
+5. E-Mail ID:*
+6. E-Mail OTP:*
+7. Mobile Number:*
+8. Alternate Mobile Number:
+9. Mobile OTP (for Aadhaar)*:
+
+🆔 SECTION 3: Aadhaar (UIDAI) Details
+10. Aadhaar Number:*
+11. Aadhaar OTP:*
+12. Aadhaar Name:*
+13. Date of Birth (as per Aadhaar):*
+14. Gender:* (Male / Female / Other)
+
+👤 SECTION 4: Personal Information
+15. Full Legal Name:*
+16. Father’s Name:*
+17. Mother’s Name:*
+18. Spouse/Guardian Name (Care Of):*
+19. Marital Status:* (Single / Married / Widowed / Divorced)
+20. Nationality:*
+21. Religion:
+22. Residential Status:* (Resident / NRI / OCI / PIO)
+23. Place of Birth:
+24. Country of Birth:
+
+📍 SECTION 5: Address Details
+25. Street/ House/ Landmark:*
+26. Area / Locality:*
+27. Location/Village / Town:*
+28. Post Office:*
+29. City / District:*
+30. State:*
+31. Country:*
+32. Pincode:*
+33. Type of Address:* (Residential / Office / Other)
+34. Is Permanent Address Same as Current? (Yes/No)
+35. Permanent Address: (if different)
+
+💼 SECTION 6: Employment & Financials
+36. Occupation Type:* (Salaried / Business / Retired / Student / Housewife / Other)
+37. Employer Name / Business Name:
+38. Nature of Business / Industry:
+39. Designation / Role:
+40. Annual Income Range:*
+41. Source of Funds:* (Salary / Business / Investments / Others)
+
+
+💳 SECTION 7: Banking & ID Details
+42. PAN Number:*
+43. PAN Holder Name:*
+44. Driving Licence Number:
+45. Driving Licence DOB:
+46. Driving Licence Name:
+
+📎 SECTION 8: Document Uploads
+47. Upload Aadhaar Card (Front & Back):*
+48. Upload PAN Card:*
+49. Upload Passport / Driving Licence:
+50. Upload Address Proof (if different):
+51. Upload Signature Scan:*
+
+
+
+
+| Field Type                        | Validation Rule                                                         |
+| --------------------------------- | ----------------------------------------------------------------------- |
+| Text Fields (Name, Address, etc.) | Required, no special characters, min/max length                         |
+| Email                             | Required, valid format (`example@domain.com`)                           |
+| Mobile Number                     | Required, 10 digits, numeric only                                       |
+| OTPs                              | Required, 4-6 digit numeric                                             |
+| Aadhaar Number                    | 12 digits, numeric only, required                                       |
+| PAN Number                        | Required, 10-character alphanumeric, follows PAN format                 |
+| Date Fields                       | Required where specified, date format (DD/MM/YYYY)                      |
+| Drop-downs                        | Must select a value (not default "--Select--")                          |
+| File Uploads                      | allowed types: PDF, JPG |
+                                                       |
