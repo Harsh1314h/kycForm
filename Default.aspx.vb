@@ -1,6 +1,9 @@
 Public Class _Default
     Inherits System.Web.UI.Page
 
+    ' Explicitly declare the single control used in code-behind to clear Visual Studio static compiler warnings
+    Protected WithEvents txtApplicationDate As System.Web.UI.WebControls.TextBox
+
     ''' <summary>
     ''' Handles the Page Load event. Pre-populates default values on initial load.
     ''' </summary>
