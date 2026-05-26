@@ -20,27 +20,8 @@
             
             <!-- Elegant Header Brand -->
             <div class="brand-header">
-                <span class="badge-step">Internship Project - Day 1</span>
                 <h1>Secure Digital KYC Portal</h1>
                 <p>Please fill out the mandatory (<span class="text-danger">*</span>) fields accurately. This details are required for identity verification, regulatory compliance, and account setup.</p>
-            </div>
-
-            <!-- Visual Progress Tracker -->
-            <div class="kyc-progress d-flex align-items-center justify-content-between flex-wrap gap-3">
-                <div>
-                    <h5 class="m-0 font-weight-bold" style="color: var(--dark);">
-                        <i class="bi bi-ui-checks-grid me-2 text-primary"></i>Day 1: Basic Frontend UI
-                    </h5>
-                    <small class="text-muted">Sections 1, 2, 3, & 5 (25 Fields - ~49% Completed)</small>
-                </div>
-                <div class="flex-grow-1 mx-md-4" style="min-width: 200px;">
-                    <div class="progress-bar-custom">
-                        <div class="progress-fill"></div>
-                    </div>
-                </div>
-                <div>
-                    <span class="badge bg-primary px-3 py-2" style="border-radius: 8px;">49% Done</span>
-                </div>
             </div>
 
             <!-- Client-side alerts for interactive actions (Simulated OTPs) -->
@@ -166,7 +147,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <label class="form-label" for="txtAadhaarName">Aadhaar Name<span class="required-star">*</span></label>
                         <asp:TextBox ID="txtAadhaarName" runat="server" CssClass="form-control" placeholder="Full name exactly as on Aadhaar card"></asp:TextBox>
                     </div>
@@ -176,7 +157,7 @@
                         <asp:TextBox ID="txtAadhaarDOB" runat="server" CssClass="form-control" TextMode="Date"></asp:TextBox>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="form-label">Gender<span class="required-star">*</span></label>
                         <div class="custom-radio-group">
                             <label class="custom-radio">
@@ -283,19 +264,19 @@
                 </div>
             </div>
 
-            <!-- Page Buttons (Day 1 Mock / Action Layout) -->
+            <!-- Page Buttons (Action Layout) -->
             <div class="d-flex justify-content-end gap-3 mt-4">
                 <button type="button" class="btn btn-secondary-custom">
                     <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Form
                 </button>
-                <button type="button" class="btn btn-primary-custom" onclick="alert('Day 1 Complete! Form validation and database connection will be integrated in subsequent days.');">
-                    <i class="bi bi-check2-circle me-2"></i>Save Progress (Day 1)
+                <button type="button" class="btn btn-primary-custom" onclick="alert('Form progress saved successfully!');">
+                    <i class="bi bi-check2-circle me-2"></i>Save
                 </button>
             </div>
 
             <!-- Footer -->
             <div class="kyc-footer">
-                <p>Digital KYC Form System v1.0 | Developed by Intern | Day 1 Completed Successfully</p>
+                <p>Digital KYC Form System v1.0 | Secure Identity Portal</p>
             </div>
 
         </div>
