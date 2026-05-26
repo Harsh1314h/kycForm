@@ -84,25 +84,35 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label" for="txtEmail">E-Mail ID<span class="required-star">*</span></label>
-                        <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" placeholder="name@example.com" TextMode="Email"></asp:TextBox>
+                        <div class="otp-group">
+                            <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" placeholder="name@example.com" TextMode="Email"></asp:TextBox>
+                            <button type="button" class="btn btn-otp" onclick="simulateOTP('Email')">
+                                <i class="bi bi-send me-1"></i>Get OTP
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="col-md-6">
                         <label class="form-label" for="txtEmailOTP">E-Mail OTP<span class="required-star">*</span></label>
+                        <asp:TextBox ID="txtEmailOTP" runat="server" CssClass="form-control" placeholder="Enter 6-digit OTP" MaxLength="6"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="txtMobileNumber">Mobile Number<span class="required-star">*</span></label>
                         <div class="otp-group">
-                            <asp:TextBox ID="txtEmailOTP" runat="server" CssClass="form-control" placeholder="Enter 6-digit OTP" MaxLength="6"></asp:TextBox>
-                            <button type="button" class="btn btn-otp" onclick="simulateOTP('Email')">
-                                <i class="bi bi-send me-1"></i>Send OTP
+                            <div class="input-group" style="flex: 1;">
+                                <span class="input-group-text bg-white" style="border-radius: 10px 0 0 10px; border: 1.5px solid var(--slate-200); border-right: none;">+91</span>
+                                <asp:TextBox ID="txtMobileNumber" runat="server" CssClass="form-control" style="border-radius: 0 10px 10px 0;" placeholder="10-digit Mobile No." MaxLength="10"></asp:TextBox>
+                            </div>
+                            <button type="button" class="btn btn-otp" onclick="simulateOTP('Aadhaar Mobile')">
+                                <i class="bi bi-send me-1"></i>Get OTP
                             </button>
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label" for="txtMobileNumber">Mobile Number<span class="required-star">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white" style="border-radius: 10px 0 0 10px; border: 1.5px solid var(--slate-200); border-right: none;">+91</span>
-                            <asp:TextBox ID="txtMobileNumber" runat="server" CssClass="form-control" style="border-radius: 0 10px 10px 0;" placeholder="10-digit Mobile No." MaxLength="10"></asp:TextBox>
-                        </div>
+                        <label class="form-label" for="txtAadhaarMobileOTP">Mobile OTP (for Aadhaar)<span class="required-star">*</span></label>
+                        <asp:TextBox ID="txtAadhaarMobileOTP" runat="server" CssClass="form-control" placeholder="Enter 6-digit Aadhaar OTP" MaxLength="6"></asp:TextBox>
                     </div>
 
                     <div class="col-md-6">
@@ -110,16 +120,6 @@
                         <div class="input-group">
                             <span class="input-group-text bg-white" style="border-radius: 10px 0 0 10px; border: 1.5px solid var(--slate-200); border-right: none;">+91</span>
                             <asp:TextBox ID="txtAlternateMobile" runat="server" CssClass="form-control" style="border-radius: 0 10px 10px 0;" placeholder="Optional alternate number" MaxLength="10"></asp:TextBox>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label" for="txtAadhaarMobileOTP">Mobile OTP (for Aadhaar)<span class="required-star">*</span></label>
-                        <div class="otp-group">
-                            <asp:TextBox ID="txtAadhaarMobileOTP" runat="server" CssClass="form-control" placeholder="Enter 6-digit Aadhaar OTP" MaxLength="6"></asp:TextBox>
-                            <button type="button" class="btn btn-otp" onclick="simulateOTP('Aadhaar Mobile')">
-                                <i class="bi bi-send me-1"></i>Send OTP
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -134,17 +134,17 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label" for="txtAadhaarNumber">Aadhaar Number<span class="required-star">*</span></label>
-                        <asp:TextBox ID="txtAadhaarNumber" runat="server" CssClass="form-control" placeholder="12-digit UID No." MaxLength="12"></asp:TextBox>
+                        <div class="otp-group">
+                            <asp:TextBox ID="txtAadhaarNumber" runat="server" CssClass="form-control" placeholder="12-digit UID No." MaxLength="12"></asp:TextBox>
+                            <button type="button" class="btn btn-otp" onclick="simulateOTP('Aadhaar UIDAI')">
+                                <i class="bi bi-send me-1"></i>Get OTP
+                            </button>
+                        </div>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label" for="txtAadhaarOTP">Aadhaar OTP<span class="required-star">*</span></label>
-                        <div class="otp-group">
-                            <asp:TextBox ID="txtAadhaarOTP" runat="server" CssClass="form-control" placeholder="Enter OTP from UIDAI" MaxLength="6"></asp:TextBox>
-                            <button type="button" class="btn btn-otp" onclick="simulateOTP('Aadhaar UIDAI')">
-                                <i class="bi bi-send me-1"></i>Send OTP
-                            </button>
-                        </div>
+                        <asp:TextBox ID="txtAadhaarOTP" runat="server" CssClass="form-control" placeholder="Enter OTP from UIDAI" MaxLength="6"></asp:TextBox>
                     </div>
 
                     <div class="col-md-5">
