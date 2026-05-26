@@ -186,27 +186,27 @@
                 </div>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label" for="txtFullName">15. Full Legal Name<span class="required-star">*</span></label>
+                        <label class="form-label" for="txtFullName">Full Legal Name<span class="required-star">*</span></label>
                         <asp:TextBox ID="txtFullName" runat="server" CssClass="form-control" placeholder="Full name exactly as per ID proofs"></asp:TextBox>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label" for="txtFatherName">16. Father’s Name<span class="required-star">*</span></label>
+                        <label class="form-label" for="txtFatherName">Father's Name<span class="required-star">*</span></label>
                         <asp:TextBox ID="txtFatherName" runat="server" CssClass="form-control" placeholder="Father's full name"></asp:TextBox>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label" for="txtMotherName">17. Mother’s Name<span class="required-star">*</span></label>
+                        <label class="form-label" for="txtMotherName">Mother's Name<span class="required-star">*</span></label>
                         <asp:TextBox ID="txtMotherName" runat="server" CssClass="form-control" placeholder="Mother's full name"></asp:TextBox>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label" for="txtSpouseGuardian">18. Spouse/Guardian Name (Care Of)<span class="required-star">*</span></label>
+                        <label class="form-label" for="txtSpouseGuardian">Spouse/Guardian Name (Care Of)<span class="required-star">*</span></label>
                         <asp:TextBox ID="txtSpouseGuardian" runat="server" CssClass="form-control" placeholder="Spouse or Guardian name"></asp:TextBox>
                     </div>
 
                     <div class="col-md-3">
-                        <label class="form-label" for="ddlMaritalStatus">19. Marital Status<span class="required-star">*</span></label>
+                        <label class="form-label" for="ddlMaritalStatus">Marital Status<span class="required-star">*</span></label>
                         <asp:DropDownList ID="ddlMaritalStatus" runat="server" CssClass="form-select">
                             <asp:ListItem Value="">-- Select Status --</asp:ListItem>
                             <asp:ListItem Value="Single">Single</asp:ListItem>
@@ -217,17 +217,17 @@
                     </div>
 
                     <div class="col-md-3">
-                        <label class="form-label" for="txtNationality">20. Nationality<span class="required-star">*</span></label>
+                        <label class="form-label" for="txtNationality">Nationality<span class="required-star">*</span></label>
                         <asp:TextBox ID="txtNationality" runat="server" CssClass="form-control" Text="Indian" placeholder="e.g. Indian"></asp:TextBox>
                     </div>
 
                     <div class="col-md-3">
-                        <label class="form-label" for="txtReligion">21. Religion</label>
+                        <label class="form-label" for="txtReligion">Religion</label>
                         <asp:TextBox ID="txtReligion" runat="server" CssClass="form-control" placeholder="e.g. Hinduism, Islam, etc."></asp:TextBox>
                     </div>
 
                     <div class="col-md-3">
-                        <label class="form-label" for="ddlResidentialStatus">22. Residential Status<span class="required-star">*</span></label>
+                        <label class="form-label" for="ddlResidentialStatus">Residential Status<span class="required-star">*</span></label>
                         <asp:DropDownList ID="ddlResidentialStatus" runat="server" CssClass="form-select">
                             <asp:ListItem Value="">-- Select Status --</asp:ListItem>
                             <asp:ListItem Value="Resident">Resident</asp:ListItem>
@@ -238,12 +238,12 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label" for="txtPlaceOfBirth">23. Place of Birth</label>
+                        <label class="form-label" for="txtPlaceOfBirth">Place of Birth</label>
                         <asp:TextBox ID="txtPlaceOfBirth" runat="server" CssClass="form-control" placeholder="City / Town / Village of birth"></asp:TextBox>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label" for="txtCountryOfBirth">24. Country of Birth</label>
+                        <label class="form-label" for="txtCountryOfBirth">Country of Birth</label>
                         <asp:TextBox ID="txtCountryOfBirth" runat="server" CssClass="form-control" Text="India" placeholder="Country of birth"></asp:TextBox>
                     </div>
                 </div>
