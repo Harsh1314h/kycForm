@@ -216,10 +216,16 @@ body {
 .otp-group {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .otp-group .form-control {
     flex: 1;
+}
+
+.otp-group .invalid-feedback {
+    flex-basis: 100%;
+    width: 100%;
 }
 
 .btn-otp {
