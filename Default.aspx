@@ -660,9 +660,41 @@
             }
         }
 
-        // Simulate Sending OTP (Interactive feature)
+        // Simulate Sending OTP with conditional field validation first
         function simulateOTP(channel) {
-            showToast('OTP Dispatched', `A simulated 6-digit confirmation code was sent to your ${channel}.`, 'info');
+            if (channel === 'Email') {
+                const emailField = fields.find(f => f.id === '<%= txtEmail.ClientID %>');
+                if (emailField) {
+                    const isValid = validateField(emailField);
+                    if (!isValid) {
+                        showToast('Email Required', 'Please enter a valid E-Mail ID first before requesting an OTP.', 'danger');
+                        document.getElementById(emailField.id).focus();
+                        return;
+                    }
+                }
+            } else if (channel === 'Aadhaar Mobile') {
+                const mobileField = fields.find(f => f.id === '<%= txtMobileNumber.ClientID %>');
+                if (mobileField) {
+                    const isValid = validateField(mobileField);
+                    if (!isValid) {
+                        showToast('Mobile Number Required', 'Please enter a valid 10-digit Mobile Number first before requesting an OTP.', 'danger');
+                        document.getElementById(mobileField.id).focus();
+                        return;
+                    }
+                }
+            } else if (channel === 'Aadhaar UIDAI') {
+                const aadhaarField = fields.find(f => f.id === '<%= txtAadhaarNumber.ClientID %>');
+                if (aadhaarField) {
+                    const isValid = validateField(aadhaarField);
+                    if (!isValid) {
+                        showToast('Aadhaar Required', 'Please enter a valid 12-digit Aadhaar Number first before requesting an OTP.', 'danger');
+                        document.getElementById(aadhaarField.id).focus();
+                        return;
+                    }
+                }
+            }
+            
+            showToast('OTP Dispatched', `A simulated 6-digit confirmation code was sent to your registered ${channel}.`, 'info');
         }
 
         // Floating Toast Notification Logic
