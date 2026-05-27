@@ -312,3 +312,305 @@ body {
     font-weight: 500;
     box-shadow: var(--card-shadow);
 }
+
+/* Upload Zone Custom Styling */
+.upload-zone {
+    border: 2.25px dashed var(--slate-300);
+    border-radius: 14px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    background-color: var(--slate-50);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    min-height: 140px;
+}
+
+.upload-zone:hover {
+    border-color: var(--primary);
+    background-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.08);
+}
+
+.upload-zone.is-invalid {
+    border-color: var(--danger);
+    background-color: #fef2f2;
+}
+
+.upload-zone.is-valid {
+    border-color: var(--success);
+    background-color: var(--success-light);
+}
+
+.upload-icon {
+    font-size: 2.5rem;
+    color: var(--slate-400);
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.upload-zone:hover .upload-icon {
+    color: var(--primary);
+    transform: scale(1.1);
+}
+
+.upload-zone.is-invalid .upload-icon {
+    color: var(--danger);
+}
+
+.upload-zone.is-valid .upload-icon {
+    color: var(--success);
+}
+
+.upload-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--slate-700);
+    margin-bottom: 0.35rem;
+}
+
+.upload-subtitle {
+    font-size: 0.8rem;
+    color: var(--slate-400);
+    font-weight: 500;
+}
+
+/* Upload Preview overlay */
+.upload-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--glass-bg);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    z-index: 10;
+    gap: 1.25rem;
+    border: 2px solid var(--success);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease forwards;
+}
+
+.upload-preview.hidden {
+    display: none !important;
+}
+
+.preview-icon {
+    font-size: 2.5rem;
+    animation: pulse 2s infinite;
+}
+
+.preview-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    overflow: hidden;
+}
+
+.preview-filename {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--dark);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.preview-filesize {
+    font-size: 0.8rem;
+    color: var(--slate-400);
+    font-weight: 600;
+}
+
+.btn-remove-file {
+    background: none;
+    border: none;
+    color: var(--slate-400);
+    font-size: 1.75rem;
+    padding: 0;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-remove-file:hover {
+    color: var(--danger);
+    transform: scale(1.15);
+}
+
+/* Floating Premium Toasts */
+.toast-custom {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 10px 10px -6px rgba(15, 23, 42, 0.04);
+    border-radius: 14px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    min-width: 340px;
+    max-width: 450px;
+    margin-bottom: 0.85rem;
+    animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    position: relative;
+    overflow: hidden;
+}
+
+.toast-custom::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 6px;
+}
+
+.toast-custom.toast-success::before {
+    background-color: var(--success);
+}
+
+.toast-custom.toast-danger::before {
+    background-color: var(--danger);
+}
+
+.toast-custom.toast-warning::before {
+    background-color: var(--warning);
+}
+
+.toast-custom.toast-info::before {
+    background-color: var(--primary);
+}
+
+.toast-icon {
+    font-size: 1.5rem;
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+}
+
+.toast-success .toast-icon { color: var(--success); }
+.toast-danger .toast-icon { color: var(--danger); }
+.toast-warning .toast-icon { color: var(--warning); }
+.toast-info .toast-icon { color: var(--primary); }
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 700;
+    color: var(--dark);
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+}
+
+.toast-message {
+    font-size: 0.825rem;
+    color: var(--slate-600);
+    line-height: 1.4;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: var(--slate-400);
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 0;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.toast-close:hover {
+    color: var(--dark);
+}
+
+/* Custom Validation State Visual Feedback */
+.form-control.is-invalid, .form-select.is-invalid {
+    border-color: var(--danger);
+    background-image: none;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-control.is-valid, .form-select.is-valid {
+    border-color: var(--success);
+    background-image: none;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08);
+}
+
+.invalid-feedback {
+    display: none;
+    font-size: 0.775rem;
+    font-weight: 700;
+    color: var(--danger);
+    margin-top: 0.45rem;
+    animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.form-control.is-invalid ~ .invalid-feedback,
+.form-select.is-invalid ~ .invalid-feedback,
+.otp-group.is-invalid ~ .invalid-feedback,
+.input-group.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+
+/* Animations */
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes toastSlideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+

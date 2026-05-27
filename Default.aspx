@@ -16,6 +16,9 @@
 </head>
 <body>
     <form id="kycForm" runat="server">
+        <!-- Floating Toast Container for Premium Notifications -->
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;" id="toastContainer"></div>
+
         <div class="kyc-container">
             
             <!-- Elegant Header Brand -->
@@ -366,12 +369,227 @@
                 </div>
             </div>
 
+            <!-- ================== SECTION 6: EMPLOYMENT & FINANCIALS ================== -->
+            <div class="section-card">
+                <div class="section-title">
+                    <i class="bi bi-briefcase"></i>
+                    <span>SECTION 6: Employment & Financials</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="ddlOccupation">Occupation Type<span class="required-star">*</span></label>
+                        <asp:DropDownList ID="ddlOccupation" runat="server" CssClass="form-select">
+                            <asp:ListItem Value="">-- Select Occupation Type --</asp:ListItem>
+                            <asp:ListItem Value="Salaried">Salaried</asp:ListItem>
+                            <asp:ListItem Value="Business">Business</asp:ListItem>
+                            <asp:ListItem Value="Retired">Retired</asp:ListItem>
+                            <asp:ListItem Value="Student">Student</asp:ListItem>
+                            <asp:ListItem Value="Housewife">Housewife</asp:ListItem>
+                            <asp:ListItem Value="Other">Other</asp:ListItem>
+                        </asp:DropDownList>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="txtEmployerName">Employer Name / Business Name</label>
+                        <asp:TextBox ID="txtEmployerName" runat="server" CssClass="form-control" placeholder="Company or Business entity name"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="txtBusinessNature">Nature of Business / Industry</label>
+                        <asp:TextBox ID="txtBusinessNature" runat="server" CssClass="form-control" placeholder="e.g. IT, Banking, Trade, Healthcare"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="txtDesignation">Designation / Role</label>
+                        <asp:TextBox ID="txtDesignation" runat="server" CssClass="form-control" placeholder="e.g. Senior Consultant, Proprietor"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="ddlIncomeRange">Annual Income Range<span class="required-star">*</span></label>
+                        <asp:DropDownList ID="ddlIncomeRange" runat="server" CssClass="form-select">
+                            <asp:ListItem Value="">-- Select Annual Income --</asp:ListItem>
+                            <asp:ListItem Value="Below1Lakh">Below ₹1,00,000 (Below 1 Lakh)</asp:ListItem>
+                            <asp:ListItem Value="1to5Lakhs">₹1,00,000 - ₹5,00,000 (1 - 5 Lakhs)</asp:ListItem>
+                            <asp:ListItem Value="5to10Lakhs">₹5,00,000 - ₹10,00,000 (5 - 10 Lakhs)</asp:ListItem>
+                            <asp:ListItem Value="10to25Lakhs">₹10,00,000 - ₹25,00,000 (10 - 25 Lakhs)</asp:ListItem>
+                            <asp:ListItem Value="Above25Lakhs">Above ₹25,00,000 (Above 25 Lakhs)</asp:ListItem>
+                        </asp:DropDownList>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Source of Funds<span class="required-star">*</span></label>
+                        <div class="custom-radio-group">
+                            <label class="custom-radio">
+                                <input type="radio" id="rdoFundsSalary" name="SourceOfFunds" runat="server" checked="true" /> Salary
+                            </label>
+                            <label class="custom-radio">
+                                <input type="radio" id="rdoFundsBusiness" name="SourceOfFunds" runat="server" /> Business
+                            </label>
+                            <label class="custom-radio">
+                                <input type="radio" id="rdoFundsInvestments" name="SourceOfFunds" runat="server" /> Investments
+                            </label>
+                            <label class="custom-radio">
+                                <input type="radio" id="rdoFundsOthers" name="SourceOfFunds" runat="server" /> Others
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================== SECTION 7: BANKING & ID DETAILS ================== -->
+            <div class="section-card">
+                <div class="section-title">
+                    <i class="bi bi-credit-card-2-front"></i>
+                    <span>SECTION 7: Banking & ID Details</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="txtPANNumber">PAN Number<span class="required-star">*</span></label>
+                        <asp:TextBox ID="txtPANNumber" runat="server" CssClass="form-control text-uppercase" placeholder="ABCDE1234F" MaxLength="10"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="txtPANHolderName">PAN Holder Name<span class="required-star">*</span></label>
+                        <asp:TextBox ID="txtPANHolderName" runat="server" CssClass="form-control" placeholder="Full name as printed on PAN card"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label" for="txtDLNumber">Driving Licence Number</label>
+                        <asp:TextBox ID="txtDLNumber" runat="server" CssClass="form-control text-uppercase" placeholder="DL Number (e.g. DL1420110012345)" MaxLength="16"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label" for="txtDLDOB">Driving Licence DOB</label>
+                        <asp:TextBox ID="txtDLDOB" runat="server" CssClass="form-control" TextMode="Date"></asp:TextBox>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label" for="txtDLName">Driving Licence Name</label>
+                        <asp:TextBox ID="txtDLName" runat="server" CssClass="form-control" placeholder="Full name as printed on DL"></asp:TextBox>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================== SECTION 8: DOCUMENT UPLOADS ================== -->
+            <div class="section-card">
+                <div class="section-title">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <span>SECTION 8: Document Uploads</span>
+                </div>
+                <div class="row g-4">
+                    <!-- Aadhaar Card Upload -->
+                    <div class="col-md-6">
+                        <label class="form-label">Upload Aadhaar Card (Front & Back)<span class="required-star">*</span></label>
+                        <asp:FileUpload ID="fileAadhaar" runat="server" style="display:none;" onchange="handleFileSelect(this, 'previewAadhaar', 'zoneAadhaar')" />
+                        <div class="upload-zone" id="zoneAadhaar" onclick="document.getElementById('<%= fileAadhaar.ClientID %>').click()">
+                            <i class="bi bi-file-earmark-person upload-icon"></i>
+                            <span class="upload-title">Click to Upload Aadhaar</span>
+                            <span class="upload-subtitle">Allowed formats: PDF, JPG | Max size: 5MB</span>
+                            <div id="previewAadhaar" class="upload-preview hidden">
+                                <i class="bi bi-file-earmark-check-fill preview-icon text-success"></i>
+                                <div class="preview-info">
+                                    <span class="preview-filename"></span>
+                                    <span class="preview-filesize"></span>
+                                </div>
+                                <button type="button" class="btn-remove-file" onclick="removeFile(event, 'fileAadhaar', 'previewAadhaar', 'zoneAadhaar')">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PAN Card Upload -->
+                    <div class="col-md-6">
+                        <label class="form-label">Upload PAN Card<span class="required-star">*</span></label>
+                        <asp:FileUpload ID="filePAN" runat="server" style="display:none;" onchange="handleFileSelect(this, 'previewPAN', 'zonePAN')" />
+                        <div class="upload-zone" id="zonePAN" onclick="document.getElementById('<%= filePAN.ClientID %>').click()">
+                            <i class="bi bi-file-earmark-text upload-icon"></i>
+                            <span class="upload-title">Click to Upload PAN Card</span>
+                            <span class="upload-subtitle">Allowed formats: PDF, JPG | Max size: 5MB</span>
+                            <div id="previewPAN" class="upload-preview hidden">
+                                <i class="bi bi-file-earmark-check-fill preview-icon text-success"></i>
+                                <div class="preview-info">
+                                    <span class="preview-filename"></span>
+                                    <span class="preview-filesize"></span>
+                                </div>
+                                <button type="button" class="btn-remove-file" onclick="removeFile(event, 'filePAN', 'previewPAN', 'zonePAN')">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Passport / Driving Licence Upload -->
+                    <div class="col-md-6">
+                        <label class="form-label">Upload Passport / Driving Licence</label>
+                        <asp:FileUpload ID="filePassportDL" runat="server" style="display:none;" onchange="handleFileSelect(this, 'previewPassportDL', 'zonePassportDL')" />
+                        <div class="upload-zone" id="zonePassportDL" onclick="document.getElementById('<%= filePassportDL.ClientID %>').click()">
+                            <i class="bi bi-card-image upload-icon"></i>
+                            <span class="upload-title">Click to Upload Passport/DL</span>
+                            <span class="upload-subtitle">Allowed formats: PDF, JPG | Max size: 5MB</span>
+                            <div id="previewPassportDL" class="upload-preview hidden">
+                                <i class="bi bi-file-earmark-check-fill preview-icon text-success"></i>
+                                <div class="preview-info">
+                                    <span class="preview-filename"></span>
+                                    <span class="preview-filesize"></span>
+                                </div>
+                                <button type="button" class="btn-remove-file" onclick="removeFile(event, 'filePassportDL', 'previewPassportDL', 'zonePassportDL')">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address Proof Upload -->
+                    <div class="col-md-6">
+                        <label class="form-label">Upload Address Proof (if different)</label>
+                        <asp:FileUpload ID="fileAddressProof" runat="server" style="display:none;" onchange="handleFileSelect(this, 'previewAddressProof', 'zoneAddressProof')" />
+                        <div class="upload-zone" id="zoneAddressProof" onclick="document.getElementById('<%= fileAddressProof.ClientID %>').click()">
+                            <i class="bi bi-house-door upload-icon"></i>
+                            <span class="upload-title">Click to Upload Address Proof</span>
+                            <span class="upload-subtitle">Allowed formats: PDF, JPG | Max size: 5MB</span>
+                            <div id="previewAddressProof" class="upload-preview hidden">
+                                <i class="bi bi-file-earmark-check-fill preview-icon text-success"></i>
+                                <div class="preview-info">
+                                    <span class="preview-filename"></span>
+                                    <span class="preview-filesize"></span>
+                                </div>
+                                <button type="button" class="btn-remove-file" onclick="removeFile(event, 'fileAddressProof', 'previewAddressProof', 'zoneAddressProof')">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Signature Scan Upload -->
+                    <div class="col-md-12">
+                        <label class="form-label">Upload Signature Scan<span class="required-star">*</span></label>
+                        <asp:FileUpload ID="fileSignature" runat="server" style="display:none;" onchange="handleFileSelect(this, 'previewSignature', 'zoneSignature')" />
+                        <div class="upload-zone" id="zoneSignature" onclick="document.getElementById('<%= fileSignature.ClientID %>').click()">
+                            <i class="bi bi-pen upload-icon"></i>
+                            <span class="upload-title">Click to Upload Signature Scan</span>
+                            <span class="upload-subtitle">Allowed formats: PDF, JPG | Max size: 5MB</span>
+                            <div id="previewSignature" class="upload-preview hidden">
+                                <i class="bi bi-file-earmark-check-fill preview-icon text-success"></i>
+                                <div class="preview-info">
+                                    <span class="preview-filename"></span>
+                                    <span class="preview-filesize"></span>
+                                </div>
+                                <button type="button" class="btn-remove-file" onclick="removeFile(event, 'fileSignature', 'previewSignature', 'zoneSignature')">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Page Buttons (Action Layout) -->
             <div class="d-flex justify-content-end gap-3 mt-4">
-                <button type="button" class="btn btn-secondary-custom">
+                <button type="button" class="btn btn-secondary-custom" onclick="resetKYCForm()">
                     <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Form
                 </button>
-                <button type="button" class="btn btn-primary-custom" onclick="alert('Form progress saved successfully!');">
+                <button type="button" class="btn btn-primary-custom" onclick="validateKYCForm(event)">
                     <i class="bi bi-check2-circle me-2"></i>Save
                 </button>
             </div>
@@ -389,41 +607,433 @@
 
     <!-- Client-side Interactive Script -->
     <script type="text/javascript">
+        // Field registry for validation
+        const fields = [
+            { id: '<%= ddlAccountType.ClientID %>', label: 'Account Type', required: true, type: 'select' },
+            { id: '<%= ddlBranch.ClientID %>', label: 'Preferred Bank', required: true, type: 'select' },
+            { id: '<%= txtEmail.ClientID %>', label: 'E-Mail ID', required: true, type: 'email', pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
+            { id: '<%= txtEmailOTP.ClientID %>', label: 'E-Mail OTP', required: true, type: 'otp', pattern: /^\d{4,6}$/ },
+            { id: '<%= txtMobileNumber.ClientID %>', label: 'Mobile Number', required: true, type: 'mobile', pattern: /^\d{10}$/ },
+            { id: '<%= txtAadhaarMobileOTP.ClientID %>', label: 'Mobile OTP (for Aadhaar)', required: true, type: 'otp', pattern: /^\d{4,6}$/ },
+            { id: '<%= txtAadhaarNumber.ClientID %>', label: 'Aadhaar Number', required: true, type: 'aadhaar', pattern: /^\d{12}$/ },
+            { id: '<%= txtAadhaarOTP.ClientID %>', label: 'Aadhaar OTP', required: true, type: 'otp', pattern: /^\d{4,6}$/ },
+            { id: '<%= txtAadhaarName.ClientID %>', label: 'Aadhaar Name', required: true, type: 'name', pattern: /^[a-zA-Z\s.]+$/ },
+            { id: '<%= txtAadhaarDOB.ClientID %>', label: 'Date of Birth (as per Aadhaar)', required: true, type: 'date' },
+            { id: '<%= txtFullName.ClientID %>', label: 'Full Legal Name', required: true, type: 'name', pattern: /^[a-zA-Z\s.]+$/ },
+            { id: '<%= txtFatherName.ClientID %>', label: 'Father\'s Name', required: true, type: 'name', pattern: /^[a-zA-Z\s.]+$/ },
+            { id: '<%= txtMotherName.ClientID %>', label: 'Mother\'s Name', required: true, type: 'name', pattern: /^[a-zA-Z\s.]+$/ },
+            { id: '<%= txtSpouseGuardian.ClientID %>', label: 'Spouse/Guardian Name', required: true, type: 'name', pattern: /^[a-zA-Z\s.]+$/ },
+            { id: '<%= ddlMaritalStatus.ClientID %>', label: 'Marital Status', required: true, type: 'select' },
+            { id: '<%= txtNationality.ClientID %>', label: 'Nationality', required: true, type: 'text' },
+            { id: '<%= ddlResidentialStatus.ClientID %>', label: 'Residential Status', required: true, type: 'select' },
+            { id: '<%= txtStreet.ClientID %>', label: 'Street/House/Landmark', required: true, type: 'text' },
+            { id: '<%= txtLocality.ClientID %>', label: 'Area/Locality', required: true, type: 'text' },
+            { id: '<%= txtTown.ClientID %>', label: 'Location/Village/Town', required: true, type: 'text' },
+            { id: '<%= txtPostOffice.ClientID %>', label: 'Post Office', required: true, type: 'text' },
+            { id: '<%= txtCity.ClientID %>', label: 'City/District', required: true, type: 'text' },
+            { id: '<%= ddlState.ClientID %>', label: 'State', required: true, type: 'select' },
+            { id: '<%= txtCountry.ClientID %>', label: 'Country', required: true, type: 'text' },
+            { id: '<%= txtPincode.ClientID %>', label: 'Pincode', required: true, type: 'pincode', pattern: /^\d{6}$/ },
+            { id: '<%= ddlAddressType.ClientID %>', label: 'Type of Address', required: true, type: 'select' },
+            
+            // Section 6
+            { id: '<%= ddlOccupation.ClientID %>', label: 'Occupation Type', required: true, type: 'select' },
+            { id: '<%= ddlIncomeRange.ClientID %>', label: 'Annual Income Range', required: true, type: 'select' },
+            
+            // Section 7
+            { id: '<%= txtPANNumber.ClientID %>', label: 'PAN Number', required: true, type: 'pan', pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i },
+            { id: '<%= txtPANHolderName.ClientID %>', label: 'PAN Holder Name', required: true, type: 'name', pattern: /^[a-zA-Z\s.]+$/ }
+        ];
+
         // Toggle Permanent Address Visiblity
         function togglePermanentAddress(isSame) {
             const section = document.getElementById('permanentAddressSection');
-            if (isSame) {
-                section.classList.add('hidden-address');
-            } else {
-                section.classList.remove('hidden-address');
+            if (section) {
+                if (isSame) {
+                    section.classList.add('hidden-address');
+                } else {
+                    section.classList.remove('hidden-address');
+                }
             }
         }
 
         // Simulate Sending OTP (Interactive feature)
         function simulateOTP(channel) {
-            const placeholder = document.getElementById('alertPlaceholder');
-            const alertHtml = `
-                <div class="alert alert-success alert-dismissible alert-custom fade show mb-4" role="alert">
-                    <i class="bi bi-patch-check-fill me-2"></i>
-                    <strong>Simulated OTP Sent!</strong> A confirmation code was dispatched to your ${channel} channel successfully. (Use any dummy 6-digit code for testing).
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>`;
-            placeholder.innerHTML = alertHtml;
+            showToast('OTP Dispatched', `A simulated 6-digit confirmation code was sent to your ${channel}.`, 'info');
+        }
+
+        // Floating Toast Notification Logic
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
             
-            // Auto hide after 5 seconds
+            const toast = document.createElement('div');
+            toast.className = `toast-custom toast-${type}`;
+            
+            let iconClass = 'bi-patch-check-fill';
+            if (type === 'danger') iconClass = 'bi-exclamation-triangle-fill';
+            if (type === 'warning') iconClass = 'bi-exclamation-circle-fill';
+            if (type === 'info') iconClass = 'bi-info-circle-fill';
+            
+            toast.innerHTML = `
+                <i class="bi ${iconClass} toast-icon"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button type="button" class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="bi bi-x"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove after 5 seconds with slide out animation
             setTimeout(() => {
-                const alertEl = placeholder.querySelector('.alert');
-                if (alertEl) {
-                    const bsAlert = new bootstrap.Alert(alertEl);
-                    bsAlert.close();
-                }
+                toast.style.animation = 'toastSlideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+                setTimeout(() => toast.remove(), 300);
             }, 5000);
         }
 
-        // Run on page load to configure initial state
+        // Validation Visual Feedback State
+        function setFieldState(element, isValid, errorMessage = '') {
+            if (!element) return;
+            
+            let targetForClass = element;
+            let targetForFeedback = element.parentElement;
+            
+            // Support nesting inside input-group or otp-group
+            if (element.classList && (element.classList.contains('form-control') || element.classList.contains('form-select'))) {
+                if (element.parentElement.classList.contains('input-group') || element.parentElement.classList.contains('otp-group')) {
+                    targetForFeedback = element.parentElement.parentElement;
+                }
+            }
+            
+            // Support Document Upload Zone mapping
+            if (element.type === 'file') {
+                const fileZoneMap = {
+                    '<%= fileAadhaar.ClientID %>': 'zoneAadhaar',
+                    '<%= filePAN.ClientID %>': 'zonePAN',
+                    '<%= filePassportDL.ClientID %>': 'zonePassportDL',
+                    '<%= fileAddressProof.ClientID %>': 'zoneAddressProof',
+                    '<%= fileSignature.ClientID %>': 'zoneSignature'
+                };
+                const zoneId = fileZoneMap[element.id];
+                if (zoneId) {
+                    const zone = document.getElementById(zoneId);
+                    if (zone) {
+                        targetForClass = zone;
+                        targetForFeedback = zone.parentElement;
+                    }
+                }
+            }
+            
+            // Add/Remove bootstrap classes
+            if (isValid) {
+                targetForClass.classList.remove('is-invalid');
+                targetForClass.classList.add('is-valid');
+            } else {
+                targetForClass.classList.remove('is-valid');
+                targetForClass.classList.add('is-invalid');
+            }
+            
+            // Render error feedback message
+            let feedback = targetForFeedback.querySelector('.invalid-feedback');
+            if (!isValid) {
+                if (!feedback) {
+                    feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    targetForFeedback.appendChild(feedback);
+                }
+                feedback.textContent = errorMessage;
+                feedback.style.display = 'block';
+            } else {
+                if (feedback) {
+                    feedback.textContent = '';
+                    feedback.style.display = 'none';
+                }
+            }
+        }
+
+        // File Selection Checks (Allowed format and size)
+        function handleFileSelect(input, previewId, zoneId) {
+            const file = input.files[0];
+            const preview = document.getElementById(previewId);
+            const zone = document.getElementById(zoneId);
+            
+            if (!file) {
+                removeFile(null, input.id, previewId, zoneId);
+                return;
+            }
+            
+            const ext = file.name.split('.').pop().toLowerCase();
+            const allowed = ['pdf', 'jpg', 'jpeg'];
+            
+            if (!allowed.includes(ext)) {
+                showToast('Format Disallowed', `Only PDF and JPG/JPEG files are accepted. Selected: .${ext}`, 'danger');
+                removeFile(null, input.id, previewId, zoneId);
+                setFieldState(input, false, 'Only PDF and JPG/JPEG files are allowed.');
+                return;
+            }
+            
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                showToast('File Too Large', `The file size exceeds the 5MB limit. Selected: ${(file.size / 1024 / 1024).toFixed(2)}MB`, 'danger');
+                removeFile(null, input.id, previewId, zoneId);
+                setFieldState(input, false, 'Maximum file size allowed is 5MB.');
+                return;
+            }
+            
+            // Update UI preview
+            preview.classList.remove('hidden');
+            const filenameEl = preview.querySelector('.preview-filename');
+            const filesizeEl = preview.querySelector('.preview-filesize');
+            const iconEl = preview.querySelector('.preview-icon');
+            
+            filenameEl.textContent = file.name;
+            filesizeEl.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+            
+            if (ext === 'pdf') {
+                iconEl.className = 'bi bi-file-earmark-pdf preview-icon text-danger';
+            } else {
+                iconEl.className = 'bi bi-file-earmark-image preview-icon text-success';
+            }
+            
+            setFieldState(input, true);
+        }
+
+        // File Removal Handler
+        function removeFile(event, inputId, previewId, zoneId) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            const zone = document.getElementById(zoneId);
+            
+            if (input) input.value = '';
+            if (preview) preview.classList.add('hidden');
+            
+            if (zone) {
+                zone.classList.remove('is-valid');
+                zone.classList.remove('is-invalid');
+            }
+        }
+
+        // Validate Single Field
+        function validateField(field) {
+            const el = document.getElementById(field.id);
+            if (!el) return true;
+            
+            const val = el.value.trim();
+            
+            if (field.required && !val) {
+                setFieldState(el, false, `${field.label} is required.`);
+                return false;
+            }
+            
+            if (val && field.pattern && !field.pattern.test(val)) {
+                let msg = `Invalid ${field.label} format.`;
+                if (field.type === 'email') msg = 'Please enter a valid email address (e.g. name@domain.com).';
+                if (field.type === 'mobile') msg = 'Mobile number must be exactly 10 digits.';
+                if (field.type === 'otp') msg = 'OTP must be a 4 to 6 digit numeric code.';
+                if (field.type === 'aadhaar') msg = 'Aadhaar number must be exactly 12 digits.';
+                if (field.type === 'pan') msg = 'PAN must match the standard 10-character format (e.g. ABCDE1234F).';
+                if (field.type === 'pincode') msg = 'Pincode must be exactly 6 digits.';
+                if (field.type === 'name') msg = 'Name must not contain numbers or special characters.';
+                
+                setFieldState(el, false, msg);
+                return false;
+            }
+            
+            setFieldState(el, true);
+            return true;
+        }
+
+        // Form Submit Validation Engine
+        function validateKYCForm(event) {
+            if (event) {
+                event.preventDefault();
+            }
+            
+            let formIsValid = true;
+            const errors = [];
+            let firstInvalidElement = null;
+            
+            // 1. Validate standard registered fields
+            fields.forEach(field => {
+                const el = document.getElementById(field.id);
+                if (el) {
+                    const ok = validateField(field);
+                    if (!ok) {
+                        formIsValid = false;
+                        errors.push(field.label);
+                        if (!firstInvalidElement) firstInvalidElement = el;
+                    }
+                }
+            });
+            
+            // 2. Validate conditional Permanent Address if same-address is NO
+            const isSameAddress = document.getElementById('<%= rdoSameYes.ClientID %>').checked;
+            if (!isSameAddress) {
+                const permAddressEl = document.getElementById('<%= txtPermanentAddress.ClientID %>');
+                if (permAddressEl) {
+                    const val = permAddressEl.value.trim();
+                    if (!val) {
+                        setFieldState(permAddressEl, false, 'Permanent Address is required.');
+                        formIsValid = false;
+                        errors.push('Permanent Address');
+                        if (!firstInvalidElement) firstInvalidElement = permAddressEl;
+                    } else {
+                        setFieldState(permAddressEl, true);
+                    }
+                }
+            }
+            
+            // 3. Validate Mandatory File Uploads
+            const mandatoryFiles = [
+                { id: '<%= fileAadhaar.ClientID %>', label: 'Aadhaar Card File' },
+                { id: '<%= filePAN.ClientID %>', label: 'PAN Card File' },
+                { id: '<%= fileSignature.ClientID %>', label: 'Signature Scan File' }
+            ];
+            
+            mandatoryFiles.forEach(fileField => {
+                const input = document.getElementById(fileField.id);
+                if (input) {
+                    if (input.files.length === 0) {
+                        setFieldState(input, false, `${fileField.label} is required.`);
+                        formIsValid = false;
+                        errors.push(fileField.label);
+                        if (!firstInvalidElement) {
+                            const fileZoneMap = {
+                                '<%= fileAadhaar.ClientID %>': 'zoneAadhaar',
+                                '<%= filePAN.ClientID %>': 'zonePAN',
+                                '<%= fileSignature.ClientID %>': 'zoneSignature'
+                            };
+                            firstInvalidElement = document.getElementById(fileZoneMap[fileField.id]);
+                        }
+                    } else {
+                        if (input.classList.contains('is-invalid')) {
+                            formIsValid = false;
+                            errors.push(`${fileField.label} (Invalid Format or Size)`);
+                            if (!firstInvalidElement) firstInvalidElement = input;
+                        }
+                    }
+                }
+            });
+            
+            // Visual Results handling
+            if (!formIsValid) {
+                showToast('Form Verification Failed', `Please correct the highlighted fields and try again.`, 'danger');
+                
+                // Focus and scroll to first error control
+                if (firstInvalidElement) {
+                    firstInvalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setTimeout(() => {
+                        if (typeof firstInvalidElement.focus === 'function') {
+                            firstInvalidElement.focus();
+                        }
+                    }, 500);
+                }
+                return false;
+            }
+            
+            // If passes validation successfully
+            showToast('Verification Successful!', 'Your digital KYC document profile is fully verified and saved successfully!', 'success');
+            return true;
+        }
+
+        // Reset Form Inputs
+        function resetKYCForm() {
+            const form = document.getElementById('kycForm');
+            if (form) {
+                form.reset();
+                
+                // Remove all visual validation states
+                const formControls = form.querySelectorAll('.form-control, .form-select, .upload-zone');
+                formControls.forEach(ctrl => {
+                    ctrl.classList.remove('is-valid', 'is-invalid');
+                });
+                
+                const feedbacks = form.querySelectorAll('.invalid-feedback');
+                feedbacks.forEach(fb => {
+                    fb.style.display = 'none';
+                    fb.textContent = '';
+                });
+                
+                // Hide and clear all file previews
+                const previews = form.querySelectorAll('.upload-preview');
+                previews.forEach(p => p.classList.add('hidden'));
+                
+                // Set application date back
+                const today = new Date().toISOString().split('T')[0];
+                const appDateInput = document.getElementById('<%= txtApplicationDate.ClientID %>');
+                if (appDateInput) {
+                    appDateInput.value = today;
+                }
+                
+                // Clear any permanent address fields and toggle correctly
+                togglePermanentAddress(true);
+                
+                showToast('Form Reset Complete', 'All input fields and uploads have been cleared.', 'info');
+            }
+        }
+
+        // Realtime Input Handlers
+        function initRealtimeValidation() {
+            fields.forEach(field => {
+                const el = document.getElementById(field.id);
+                if (!el) return;
+                
+                // Trigger validate on blur
+                el.addEventListener('blur', () => {
+                    validateField(field);
+                });
+                
+                // Capitalization dynamic rules
+                if (field.type === 'pan') {
+                    el.addEventListener('input', (e) => {
+                        e.target.value = e.target.value.toUpperCase();
+                    });
+                }
+                
+                // Numbers only filtering
+                if (field.type === 'pincode' || field.type === 'mobile' || field.type === 'aadhaar' || field.type === 'otp') {
+                    el.addEventListener('input', (e) => {
+                        e.target.value = e.target.value.replace(/\D/g, '');
+                    });
+                }
+            });
+            
+            // Optional DL fields validation
+            const dlNumberEl = document.getElementById('<%= txtDLNumber.ClientID %>');
+            if (dlNumberEl) {
+                dlNumberEl.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.toUpperCase();
+                });
+                dlNumberEl.addEventListener('blur', () => {
+                    const val = dlNumberEl.value.trim();
+                    if (val) {
+                        // Standard validation for DL format if entered
+                        if (val.length < 10) {
+                            setFieldState(dlNumberEl, false, 'Driving Licence number must be at least 10 characters.');
+                        } else {
+                            setFieldState(dlNumberEl, true);
+                        }
+                    } else {
+                        dlNumberEl.classList.remove('is-valid', 'is-invalid');
+                    }
+                });
+            }
+        }
+
+        // Initial setup on Page Load
         window.addEventListener('DOMContentLoaded', () => {
             const isSame = document.getElementById('<%= rdoSameYes.ClientID %>').checked;
             togglePermanentAddress(isSame);
+            initRealtimeValidation();
         });
     </script>
 </body>
