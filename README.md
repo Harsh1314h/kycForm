@@ -1,75 +1,87 @@
-# Secure Digital KYC Portal (Internship Project)
+# Secure Digital KYC Portal
 
-A robust, enterprise-grade digital KYC (Know Your Customer) Verification Form designed for financial and banking applications. Built using a modern, premium responsive interface and a classic backend compiler structure.
-
----
-
-## 📅 Project Implementation Roadmap (6-Day Plan)
-
-- [x] **Day 1: Project Setup + Basic UI (49% Fields - 4 Sections)**
-- [ ] **Day 2: Complete Form + Frontend Valdiation**
-- [ ] **Day 3: Database Design (SSMS) + Connection**
-- [ ] **Day 4: Save Functionality (CREATE/INSERT)**
-- [ ] **Day 5: Search + Update + Delete (Full CRUD)**
-- [ ] **Day 6: Testing, Spacing, and Final Polish**
+A premium, enterprise-grade digital KYC (Know Your Customer) Verification Portal designed for secure, digital-first banking and financial applications. The application delivers a state-of-the-art visual experience (glassmorphism, tailored HSL color schemes, and modern typography) backed by a robust and clean ASP.NET compiler layout.
 
 ---
 
-## 🛠️ Technology Stack (Day 1 Status)
-- **Frontend Core**: HTML5 & Vanilla CSS3 (Custom aesthetics overriding Bootstrap)
-- **Styling Framework**: Bootstrap 5 (Responsive flex grids, tables, and icons)
-- **Backend Platform**: ASP.NET Web Forms
-- **Language**: VB.NET (Visual Basic .NET)
-- **Development Tooling**: Visual Studio / MSBuild / VB.NET Compiler v14 (`vbc.exe`)
-- **Version Control**: Git
+## 🌟 Key Features & Form Sections
+
+The portal implements the complete multi-page standard KYC specification within a single, beautifully responsive container:
+
+### 1. Basic Account Information (Section 1)
+* Selectable Account Types (Savings, Current, Fixed, etc.) and Customer Types (Individual / Non-Individual).
+* Preferred Bank selector pre-populated with major Indian Banks (SBI, HDFC, ICICI, Axis, PNB, BOB, Canara, Union).
+* Automatic Application Date binding.
+
+### 2. Contact & OTP Verification (Section 2)
+* Inline input layout containing email and mobile entries.
+* Interactive **Get OTP** triggers next to inputs displaying modern notification dispatches.
+* Integrated inputs for email OTP and Aadhaar-registered mobile OTP verification.
+
+### 3. Aadhaar (UIDAI) Details (Section 3)
+* Dedicated Aadhaar number validation with matching verification OTP fields.
+* Synchronized input for Aadhaar Legal Name, Date of Birth, and Gender.
+
+### 4. Personal Information (Section 4)
+* Full legal identity records: Full Name, Father's Name, Mother's Name, and Spouse/Guardian details.
+* Standard dropdown matrices for Marital Status, Nationality, Religion, Residential Status (Resident, NRI, OCI, PIO), and Birthplace.
+
+### 5. Address Details (Current & Permanent) (Section 5)
+* Comprehensive correspondence address details including Street, Locality, P.O., City, State (with all 36 Indian States/UTs fully mapped), and Pincode.
+* Smart **Permanent Address Toggle**: Select "Yes" to automatically hide the fields, or "No" to expand a custom, animated multi-line textbox for a separate permanent address.
+
+### 6. Employment & Financials (Section 6)
+* Occupation selectors (Salaried, Business, Retired, Student, Housewife, Other).
+* Business/Employer tags, industry designations, annual income brackets, and source of funds radio choices.
+
+### 7. Banking & ID Details (Section 7)
+* Secure government ID details mapping.
+* Permanent Account Number (PAN) capture and optional Driving Licence registration.
+
+### 8. Premium Document Uploads (Section 8)
+* Visual upload zones representing drag-and-drop styled boxes (dash-bordered containers).
+* Live file validation: Only accepts `.pdf`, `.jpg`, or `.jpeg` under `5MB` size. Displays warnings immediately upon selection.
+* Micro-visual file previews showing filename, size, and document badges on successful upload, alongside a delete icon.
+
+---
+
+## 🛡️ Interactive Client-Side Validation Engine
+
+The frontend incorporates a professional, real-time validation network built in JavaScript:
+* **Immediate Character Filtering**: Prevents illegal character entries in real-time on numeric inputs (Pincode, Aadhaar, Mobile, OTP).
+* **Automatic Formatting**: Automatically forces text capitalization on government IDs like PAN.
+* **Inline States**: Triggers visual checkmarks (emerald borders) or validation errors (crimson borders) instantly on field `blur` (lost focus).
+* **Floating Toasts**: Dispatches SaaS-dashboard style sliding notification alerts at the top-right of the viewport for error reviews or successful saves.
+* **Auto-Focus Scrolling**: If validations fail on "Save", the page details the warning, shows a toast, and scrolls smoothly to focus the first invalid control.
 
 ---
 
 ## 📁 Project Directory Structure
+
+The project has a clean layout ignoring compiled assets and local development caches:
+
 ```text
 c:\kycform\
 │
-├── .gitignore                   # Visual Studio & Windows Git ignore rules
-├── KYCForm.sln                  # Visual Studio Solution File
+├── .gitignore                   # Visual Studio & git exclude rules
+├── KYCForm.sln                  # Visual Studio Project Solution
 ├── KYCForm.vbproj               # MSBuild Web Application Project File
-├── Web.config                   # ASP.NET Application configuration (targetFramework v4.0)
+├── Web.config                   # ASP.NET Application configuration (targetFramework v4.8)
 │
-├── Default.aspx                 # Core UI with 4 sections & 25 interactive fields
-├── Default.aspx.vb              # VB.NET Code-Behind containing page load logic and control declarations
-│
-├── My Project/
-│   └── AssemblyInfo.vb          # Assembly metadata details
-│
-├── bin/
-│   └── KYCForm.dll              # Compiled VB.NET Assembly binary
+├── Default.aspx                 # Main UI markup containing all 8 sections and validation scripts
+├── Default.aspx.vb              # VB.NET Code-behind using dynamic control resolution
 │
 └── css/
-    └── style.css                # Premium Glassmorphism & Plus Jakarta Sans styles
+    └── style.css                # Premium custom styling sheet (typography, glassmorphism, animations)
 ```
 
 ---
 
-## ✨ Day 1 - Visual & UI Highlights
-1. **Interactive Layout**: Includes 4 core sections from the specification:
-   - **Section 1: Basic Account Info** (Account Type, Customer Type, Branch, Date)
-   - **Section 2: Contact & Verification** (Email, Email OTP, Mobile Number, Alternate Mobile, Aadhaar Mobile OTP)
-   - **Section 3: Aadhaar Details** (Aadhaar Number, Aadhaar OTP, Aadhaar Name, Aadhaar DOB, Gender)
-   - **Section 5: Address Details** (Street, Locality, Town, P.O., District, State, Country, Pincode, Address Type, Same-as-Permanent toggle, Permanent Address)
-2. **Premium Look & Feel**: Beautiful typography using **Plus Jakarta Sans**, deep slate headers, floating glass-like section panels, and glowing outlines on input fields.
-3. **Simulated OTP Dispatches**: Clicking "Send OTP" alerts the user with a simulated notification toast without reloading the page.
-4. **Smart Address Copy & Hide**: Pure client-side JavaScript handles the toggle of different permanent addresses dynamically to minimize form clutter.
+## 🚀 How to Run Locally
 
----
+### Visual Studio
+1. Open the folder in Visual Studio or double-click the solution file `KYCForm.sln`.
+2. Ensure you have the **ASP.NET and Web Development** workload installed.
+3. Select `Default.aspx` and click the green **Play (IIS Express)** button to load it in your browser.
 
-## 💻 How to Compile and Run
-### 1. Direct VB.NET Code Compilation
-Since standard MSBuild Targeting Packs can sometimes be missing on lightweight Build Tool installations, the project can be successfully compiled using the raw **VB.NET Compiler** (`vbc.exe`) installed on any Windows machine:
-
-```powershell
-# Compiles the VB.NET code-behind directly into standard Web DLL
-& "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\vbc.exe" /target:library /out:bin\KYCForm.dll /r:System.dll,System.Web.dll,System.Data.dll,System.Xml.dll,System.Core.dll Default.aspx.vb "My Project\AssemblyInfo.vb" /optionexplicit+ /optionstrict- /optioncompare:binary /imports:Microsoft.VisualBasic,System,System.Collections,System.Collections.Generic,System.Data,System.Diagnostics,System.Linq,System.Web,System.Web.UI,System.Web.UI.WebControls
-```
-
-### 2. Loading into Visual Studio
-Simply double-click `KYCForm.sln` to open the complete, pre-configured solution in Visual Studio.
-- Press `F5` to run via the IIS Express integrated web server.
+*(Note: The page is designed using dynamic compilation. You will encounter zero designer file warnings or assembly namespace clashing on build.)*
