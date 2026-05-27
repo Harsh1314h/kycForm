@@ -1102,6 +1102,7 @@
             }
             
             // If passes validation successfully
+            localStorage.removeItem('kyc_form_progress');
             showToast('Verification Successful!', 'Your digital KYC document profile is fully verified and saved successfully!', 'success');
             return true;
         }
@@ -1138,6 +1139,7 @@
                 // Clear any permanent address fields and toggle correctly
                 togglePermanentAddress(true);
                 
+                localStorage.removeItem('kyc_form_progress');
                 showToast('Form Reset Complete', 'All input fields and uploads have been cleared.', 'info');
             }
         }
@@ -1190,11 +1192,93 @@
             }
         }
 
+        // Save form progress in real-time to localStorage
+        function saveKYCProgress() {
+            const data = {};
+            
+            // Standard registered fields
+            fields.forEach(field => {
+                const el = document.getElementById(field.id);
+                if (el) {
+                    data[field.id] = el.value;
+                }
+            });
+            
+            // Additional custom text boxes
+            const additionalIds = [
+                '<%= txtAlternateMobile.ClientID %>',
+                '<%= txtDLNumber.ClientID %>',
+                '<%= txtDLDOB.ClientID %>',
+                '<%= txtDLName.ClientID %>',
+                '<%= txtPermanentAddress.ClientID %>'
+            ];
+            additionalIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    data[id] = el.value;
+                }
+            });
+            
+            // Radio buttons checked state
+            const radios = [
+                '<%= rdoMale.ClientID %>', '<%= rdoFemale.ClientID %>', '<%= rdoOther.ClientID %>',
+                '<%= rdoSameYes.ClientID %>', '<%= rdoSameNo.ClientID %>'
+            ];
+            radios.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    data[id] = el.checked;
+                }
+            });
+            
+            localStorage.setItem('kyc_form_progress', JSON.stringify(data));
+        }
+
+        // Restore form progress from localStorage
+        function restoreKYCProgress() {
+            const raw = localStorage.getItem('kyc_form_progress');
+            if (!raw) return;
+            
+            try {
+                const data = JSON.parse(raw);
+                
+                // Populate elements
+                for (const id in data) {
+                    const el = document.getElementById(id);
+                    if (!el) continue;
+                    
+                    if (el.type === 'radio') {
+                        el.checked = data[id];
+                    } else if (el.type !== 'file') {
+                        el.value = data[id];
+                    }
+                }
+                
+                // Re-trigger toggle of Permanent Address
+                const sameYes = document.getElementById('<%= rdoSameYes.ClientID %>');
+                if (sameYes) {
+                    togglePermanentAddress(sameYes.checked);
+                }
+            } catch (e) {
+                console.error("Error restoring progress:", e);
+            }
+        }
+
         // Initial setup on Page Load
         window.addEventListener('DOMContentLoaded', () => {
+            // Restore progress before setting up validation listeners
+            restoreKYCProgress();
+            
             const isSame = document.getElementById('<%= rdoSameYes.ClientID %>').checked;
             togglePermanentAddress(isSame);
             initRealtimeValidation();
+            
+            // Listen to any changes in the form to trigger auto-saving
+            const form = document.getElementById('kycForm');
+            if (form) {
+                form.addEventListener('input', saveKYCProgress);
+                form.addEventListener('change', saveKYCProgress);
+            }
         });
     </script>
 </body>
