@@ -484,7 +484,7 @@
                         <div class="upload-zone" id="zoneAadhaar" onclick="document.getElementById('<%= fileAadhaar.ClientID %>').click()">
                             <i class="bi bi-file-earmark-person upload-icon"></i>
                             <span class="upload-title">Click to Upload Aadhaar</span>
-                            <span class="upload-subtitle">Allowed formats: PDF, JPG | Max size: 5MB</span>
+                            <span class="upload-subtitle">Allowed formats: PDF, JPG, JPEG | Max size: 2MB</span>
                             <div id="previewAadhaar" class="upload-preview hidden">
                                 <i class="bi bi-file-earmark-check-fill preview-icon text-success"></i>
                                 <div class="preview-info">
@@ -505,7 +505,7 @@
                         <div class="upload-zone" id="zonePAN" onclick="document.getElementById('<%= filePAN.ClientID %>').click()">
                             <i class="bi bi-file-earmark-text upload-icon"></i>
                             <span class="upload-title">Click to Upload PAN Card</span>
-                            <span class="upload-subtitle">Allowed formats: PDF, JPG | Max size: 5MB</span>
+                            <span class="upload-subtitle">Allowed formats: PDF, JPG, JPEG | Max size: 2MB</span>
                             <div id="previewPAN" class="upload-preview hidden">
                                 <i class="bi bi-file-earmark-check-fill preview-icon text-success"></i>
                                 <div class="preview-info">
@@ -526,7 +526,7 @@
                         <div class="upload-zone" id="zonePassportDL" onclick="document.getElementById('<%= filePassportDL.ClientID %>').click()">
                             <i class="bi bi-card-image upload-icon"></i>
                             <span class="upload-title">Click to Upload Passport/DL</span>
-                            <span class="upload-subtitle">Allowed formats: PDF, JPG | Max size: 5MB</span>
+                            <span class="upload-subtitle">Allowed formats: PDF, JPG, JPEG | Max size: 2MB</span>
                             <div id="previewPassportDL" class="upload-preview hidden">
                                 <i class="bi bi-file-earmark-check-fill preview-icon text-success"></i>
                                 <div class="preview-info">
@@ -547,7 +547,7 @@
                         <div class="upload-zone" id="zoneAddressProof" onclick="document.getElementById('<%= fileAddressProof.ClientID %>').click()">
                             <i class="bi bi-house-door upload-icon"></i>
                             <span class="upload-title">Click to Upload Address Proof</span>
-                            <span class="upload-subtitle">Allowed formats: PDF, JPG | Max size: 5MB</span>
+                            <span class="upload-subtitle">Allowed formats: PDF, JPG, JPEG | Max size: 2MB</span>
                             <div id="previewAddressProof" class="upload-preview hidden">
                                 <i class="bi bi-file-earmark-check-fill preview-icon text-success"></i>
                                 <div class="preview-info">
@@ -568,7 +568,7 @@
                         <div class="upload-zone" id="zoneSignature" onclick="document.getElementById('<%= fileSignature.ClientID %>').click()">
                             <i class="bi bi-pen upload-icon"></i>
                             <span class="upload-title">Click to Upload Signature Scan</span>
-                            <span class="upload-subtitle">Allowed formats: PDF, JPG | Max size: 5MB</span>
+                            <span class="upload-subtitle">Allowed formats: PDF, JPG, JPEG | Max size: 2MB</span>
                             <div id="previewSignature" class="upload-preview hidden">
                                 <i class="bi bi-file-earmark-check-fill preview-icon text-success"></i>
                                 <div class="preview-info">
@@ -607,42 +607,45 @@
 
     <!-- Client-side Interactive Script -->
     <script type="text/javascript">
-        // Field registry for validation
+        // Field registry mapped directly to exact validation rule types
         const fields = [
             { id: '<%= ddlAccountType.ClientID %>', label: 'Account Type', required: true, type: 'select' },
             { id: '<%= ddlBranch.ClientID %>', label: 'Preferred Bank', required: true, type: 'select' },
-            { id: '<%= txtEmail.ClientID %>', label: 'E-Mail ID', required: true, type: 'email', pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
-            { id: '<%= txtEmailOTP.ClientID %>', label: 'E-Mail OTP', required: true, type: 'otp', pattern: /^\d{4,6}$/ },
-            { id: '<%= txtMobileNumber.ClientID %>', label: 'Mobile Number', required: true, type: 'mobile', pattern: /^\d{10}$/ },
-            { id: '<%= txtAadhaarMobileOTP.ClientID %>', label: 'Mobile OTP (for Aadhaar)', required: true, type: 'otp', pattern: /^\d{4,6}$/ },
-            { id: '<%= txtAadhaarNumber.ClientID %>', label: 'Aadhaar Number', required: true, type: 'aadhaar', pattern: /^\d{12}$/ },
-            { id: '<%= txtAadhaarOTP.ClientID %>', label: 'Aadhaar OTP', required: true, type: 'otp', pattern: /^\d{4,6}$/ },
-            { id: '<%= txtAadhaarName.ClientID %>', label: 'Aadhaar Name', required: true, type: 'name', pattern: /^[a-zA-Z\s.]+$/ },
+            { id: '<%= txtEmail.ClientID %>', label: 'E-Mail ID', required: true, type: 'email' },
+            { id: '<%= txtEmailOTP.ClientID %>', label: 'E-Mail OTP', required: true, type: 'otp' },
+            { id: '<%= txtMobileNumber.ClientID %>', label: 'Mobile Number', required: true, type: 'mobile' },
+            { id: '<%= txtAlternateMobile.ClientID %>', label: 'Alternate Mobile Number', required: false, type: 'altmobile' },
+            { id: '<%= txtAadhaarMobileOTP.ClientID %>', label: 'Mobile OTP (for Aadhaar)', required: true, type: 'otp' },
+            { id: '<%= txtAadhaarNumber.ClientID %>', label: 'Aadhaar Number', required: true, type: 'aadhaar' },
+            { id: '<%= txtAadhaarOTP.ClientID %>', label: 'Aadhaar OTP', required: true, type: 'otp' },
+            { id: '<%= txtAadhaarName.ClientID %>', label: 'Aadhaar Name', required: true, type: 'name' },
             { id: '<%= txtAadhaarDOB.ClientID %>', label: 'Date of Birth (as per Aadhaar)', required: true, type: 'date' },
-            { id: '<%= txtFullName.ClientID %>', label: 'Full Legal Name', required: true, type: 'name', pattern: /^[a-zA-Z\s.]+$/ },
-            { id: '<%= txtFatherName.ClientID %>', label: 'Father\'s Name', required: true, type: 'name', pattern: /^[a-zA-Z\s.]+$/ },
-            { id: '<%= txtMotherName.ClientID %>', label: 'Mother\'s Name', required: true, type: 'name', pattern: /^[a-zA-Z\s.]+$/ },
-            { id: '<%= txtSpouseGuardian.ClientID %>', label: 'Spouse/Guardian Name', required: true, type: 'name', pattern: /^[a-zA-Z\s.]+$/ },
+            { id: '<%= txtFullName.ClientID %>', label: 'Full Legal Name', required: true, type: 'name' },
+            { id: '<%= txtFatherName.ClientID %>', label: 'Father\'s Name', required: true, type: 'name' },
+            { id: '<%= txtMotherName.ClientID %>', label: 'Mother\'s Name', required: true, type: 'name' },
+            { id: '<%= txtSpouseGuardian.ClientID %>', label: 'Spouse/Guardian Name', required: true, type: 'name' },
             { id: '<%= ddlMaritalStatus.ClientID %>', label: 'Marital Status', required: true, type: 'select' },
-            { id: '<%= txtNationality.ClientID %>', label: 'Nationality', required: true, type: 'text' },
+            { id: '<%= txtNationality.ClientID %>', label: 'Nationality', required: true, type: 'name' },
             { id: '<%= ddlResidentialStatus.ClientID %>', label: 'Residential Status', required: true, type: 'select' },
-            { id: '<%= txtStreet.ClientID %>', label: 'Street/House/Landmark', required: true, type: 'text' },
-            { id: '<%= txtLocality.ClientID %>', label: 'Area/Locality', required: true, type: 'text' },
-            { id: '<%= txtTown.ClientID %>', label: 'Location/Village/Town', required: true, type: 'text' },
-            { id: '<%= txtPostOffice.ClientID %>', label: 'Post Office', required: true, type: 'text' },
-            { id: '<%= txtCity.ClientID %>', label: 'City/District', required: true, type: 'text' },
+            
+            // Section 5: Address Detail Fields
+            { id: '<%= txtStreet.ClientID %>', label: 'Street/House/Landmark', required: true, type: 'address' },
+            { id: '<%= txtLocality.ClientID %>', label: 'Area/Locality', required: true, type: 'address' },
+            { id: '<%= txtTown.ClientID %>', label: 'Location/Village/Town', required: true, type: 'city' },
+            { id: '<%= txtPostOffice.ClientID %>', label: 'Post Office', required: true, type: 'city' },
+            { id: '<%= txtCity.ClientID %>', label: 'City/District', required: true, type: 'city' },
             { id: '<%= ddlState.ClientID %>', label: 'State', required: true, type: 'select' },
-            { id: '<%= txtCountry.ClientID %>', label: 'Country', required: true, type: 'text' },
-            { id: '<%= txtPincode.ClientID %>', label: 'Pincode', required: true, type: 'pincode', pattern: /^\d{6}$/ },
+            { id: '<%= txtCountry.ClientID %>', label: 'Country', required: true, type: 'name' },
+            { id: '<%= txtPincode.ClientID %>', label: 'Pincode', required: true, type: 'pincode' },
             { id: '<%= ddlAddressType.ClientID %>', label: 'Type of Address', required: true, type: 'select' },
             
-            // Section 6
+            // Section 6: Employment details
             { id: '<%= ddlOccupation.ClientID %>', label: 'Occupation Type', required: true, type: 'select' },
             { id: '<%= ddlIncomeRange.ClientID %>', label: 'Annual Income Range', required: true, type: 'select' },
             
-            // Section 7
-            { id: '<%= txtPANNumber.ClientID %>', label: 'PAN Number', required: true, type: 'pan', pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i },
-            { id: '<%= txtPANHolderName.ClientID %>', label: 'PAN Holder Name', required: true, type: 'name', pattern: /^[a-zA-Z\s.]+$/ }
+            // Section 7: Government IDs
+            { id: '<%= txtPANNumber.ClientID %>', label: 'PAN Number', required: true, type: 'pan' },
+            { id: '<%= txtPANHolderName.ClientID %>', label: 'PAN Holder Name', required: true, type: 'name' }
         ];
 
         // Toggle Permanent Address Visiblity
@@ -688,7 +691,7 @@
             
             container.appendChild(toast);
             
-            // Auto remove after 5 seconds with slide out animation
+            // Auto remove after 5 seconds
             setTimeout(() => {
                 toast.style.animation = 'toastSlideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards';
                 setTimeout(() => toast.remove(), 300);
@@ -728,7 +731,7 @@
                 }
             }
             
-            // Add/Remove bootstrap classes
+            // Add/Remove validation design classes
             if (isValid) {
                 targetForClass.classList.remove('is-invalid');
                 targetForClass.classList.add('is-valid');
@@ -755,7 +758,7 @@
             }
         }
 
-        // File Selection Checks (Allowed format and size)
+        // File Selection Checks (Format and Size - Max 2MB)
         function handleFileSelect(input, previewId, zoneId) {
             const file = input.files[0];
             const preview = document.getElementById(previewId);
@@ -766,6 +769,7 @@
                 return;
             }
             
+            // 15. File format extensions check
             const ext = file.name.split('.').pop().toLowerCase();
             const allowed = ['pdf', 'jpg', 'jpeg'];
             
@@ -776,11 +780,12 @@
                 return;
             }
             
-            const maxSize = 5 * 1024 * 1024; // 5MB
+            // 16. File Size Validation (Max 2MB)
+            const maxSize = 2 * 1024 * 1024; // 2MB
             if (file.size > maxSize) {
-                showToast('File Too Large', `The file size exceeds the 5MB limit. Selected: ${(file.size / 1024 / 1024).toFixed(2)}MB`, 'danger');
+                showToast('File Too Large', `The file size exceeds the 2MB limit. Selected: ${(file.size / 1024 / 1024).toFixed(2)}MB`, 'danger');
                 removeFile(null, input.id, previewId, zoneId);
-                setFieldState(input, false, 'Maximum file size allowed is 5MB.');
+                setFieldState(input, false, 'Maximum file size allowed is 2MB.');
                 return;
             }
             
@@ -822,30 +827,149 @@
             }
         }
 
-        // Validate Single Field
+        // Complete 22-Rule Mapping Single Field Validator
         function validateField(field) {
             const el = document.getElementById(field.id);
             if (!el) return true;
             
+            // 21. Trim Whitespace Validation
             const val = el.value.trim();
             
+            // 1. Required Field Validation
             if (field.required && !val) {
                 setFieldState(el, false, `${field.label} is required.`);
                 return false;
             }
             
-            if (val && field.pattern && !field.pattern.test(val)) {
-                let msg = `Invalid ${field.label} format.`;
-                if (field.type === 'email') msg = 'Please enter a valid email address (e.g. name@domain.com).';
-                if (field.type === 'mobile') msg = 'Mobile number must be exactly 10 digits.';
-                if (field.type === 'otp') msg = 'OTP must be a 4 to 6 digit numeric code.';
-                if (field.type === 'aadhaar') msg = 'Aadhaar number must be exactly 12 digits.';
-                if (field.type === 'pan') msg = 'PAN must match the standard 10-character format (e.g. ABCDE1234F).';
-                if (field.type === 'pincode') msg = 'Pincode must be exactly 6 digits.';
-                if (field.type === 'name') msg = 'Name must not contain numbers or special characters.';
+            // 2. Dropdown validation (Ensure selection is not index 0)
+            if (el.tagName === 'SELECT') {
+                if (el.selectedIndex === 0 || val === "") {
+                    setFieldState(el, false, `Please select a valid option for ${field.label}.`);
+                    return false;
+                }
+            }
+            
+            // Optional fields check (if empty and optional, skip further checks)
+            if (!field.required && !val) {
+                setFieldState(el, true);
+                el.classList.remove('is-valid', 'is-invalid');
+                return true;
+            }
+            
+            // 3. Email Validation
+            if (field.type === 'email') {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(val)) {
+                    setFieldState(el, false, 'Please enter a valid email address (e.g. name@domain.com).');
+                    return false;
+                }
+            }
+            
+            // 4. Mobile Number Validation
+            if (field.type === 'mobile') {
+                const mobilePattern = /^[0-9]{10}$/;
+                if (!mobilePattern.test(val)) {
+                    setFieldState(el, false, 'Mobile number must be exactly 10 digits (numeric only).');
+                    return false;
+                }
+            }
+            
+            // 5. Alternate Mobile Validation (Only validated if filled)
+            if (field.type === 'altmobile') {
+                const mobilePattern = /^[0-9]{10}$/;
+                if (!mobilePattern.test(val)) {
+                    setFieldState(el, false, 'Alternate Mobile must be exactly 10 digits (numeric only).');
+                    return false;
+                }
+            }
+            
+            // 6. OTP Validation (4-6 numeric digits)
+            if (field.type === 'otp') {
+                const otpPattern = /^[0-9]{4,6}$/;
+                if (!otpPattern.test(val)) {
+                    setFieldState(el, false, 'OTP code must be a numeric value of 4 to 6 digits.');
+                    return false;
+                }
+            }
+            
+            // 7. Aadhaar Number Validation (12 digits, numeric only)
+            if (field.type === 'aadhaar') {
+                const aadhaarPattern = /^[0-9]{12}$/;
+                if (!aadhaarPattern.test(val)) {
+                    setFieldState(el, false, 'Aadhaar number must be exactly 12 digits (numeric only).');
+                    return false;
+                }
+            }
+            
+            // 8. PAN Number Validation (10 characters, formatted like ABCDE1234F)
+            if (field.type === 'pan') {
+                const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+                if (!panPattern.test(val)) {
+                    setFieldState(el, false, 'PAN must be a 10-character alphanumeric in format ABCDE1234F.');
+                    return false;
+                }
+            }
+            
+            // 9 & 10. Legal Name & Aadhaar Name validation (alphabets only, spaces allowed, length 2 to 50)
+            if (field.type === 'name') {
+                const namePattern = /^[A-Za-z\s]{2,50}$/;
+                if (!namePattern.test(val)) {
+                    setFieldState(el, false, 'Name must contain only alphabets and spaces, between 2 and 50 characters.');
+                    return false;
+                }
+            }
+            
+            // 11. Address validation (min length 5, no only spaces)
+            if (field.type === 'address') {
+                if (val.length < 5) {
+                    setFieldState(el, false, `${field.label} must be at least 5 characters long.`);
+                    return false;
+                }
+            }
+            
+            // 12. Pincode validation (6 digits, numeric only)
+            if (field.type === 'pincode') {
+                const pinPattern = /^[0-9]{6}$/;
+                if (!pinPattern.test(val)) {
+                    setFieldState(el, false, 'Pincode must be exactly 6 digits (numeric only).');
+                    return false;
+                }
+            }
+            
+            // 14. DOB Validation (valid date, not future, min age 18)
+            if (field.type === 'date' && field.id === '<%= txtAadhaarDOB.ClientID %>') {
+                const dobVal = new Date(val);
+                const today = new Date();
                 
-                setFieldState(el, false, msg);
-                return false;
+                if (isNaN(dobVal.getTime())) {
+                    setFieldState(el, false, 'Please select a valid date.');
+                    return false;
+                }
+                
+                if (dobVal > today) {
+                    setFieldState(el, false, 'Date of birth cannot be in the future.');
+                    return false;
+                }
+                
+                let age = today.getFullYear() - dobVal.getFullYear();
+                const m = today.getMonth() - dobVal.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < dobVal.getDate())) {
+                    age--;
+                }
+                
+                if (age < 18) {
+                    setFieldState(el, false, 'Applicant must be at least 18 years old.');
+                    return false;
+                }
+            }
+            
+            // 19. Prevent special characters in city/town/locality
+            if (field.type === 'city') {
+                const cityPattern = /^[A-Za-z\s]{2,50}$/;
+                if (!cityPattern.test(val)) {
+                    setFieldState(el, false, `${field.label} must contain only alphabets and spaces (2 to 50 characters).`);
+                    return false;
+                }
             }
             
             setFieldState(el, true);
@@ -886,13 +1010,18 @@
                         formIsValid = false;
                         errors.push('Permanent Address');
                         if (!firstInvalidElement) firstInvalidElement = permAddressEl;
+                    } else if (val.length < 5) {
+                        setFieldState(permAddressEl, false, 'Permanent Address must be at least 5 characters.');
+                        formIsValid = false;
+                        errors.push('Permanent Address Length');
+                        if (!firstInvalidElement) firstInvalidElement = permAddressEl;
                     } else {
                         setFieldState(permAddressEl, true);
                     }
                 }
             }
             
-            // 3. Validate Mandatory File Uploads
+            // 3. Validate Mandatory File Uploads (Aadhaar, PAN, Signature)
             const mandatoryFiles = [
                 { id: '<%= fileAadhaar.ClientID %>', label: 'Aadhaar Card File' },
                 { id: '<%= filePAN.ClientID %>', label: 'PAN Card File' },
@@ -981,7 +1110,7 @@
             }
         }
 
-        // Realtime Input Handlers
+        // Realtime Input Handlers & 18. Numeric-only Key Filtering
         function initRealtimeValidation() {
             fields.forEach(field => {
                 const el = document.getElementById(field.id);
@@ -999,8 +1128,8 @@
                     });
                 }
                 
-                // Numbers only filtering
-                if (field.type === 'pincode' || field.type === 'mobile' || field.type === 'aadhaar' || field.type === 'otp') {
+                // 18. Numbers-only key filtering to prevent letters
+                if (field.type === 'pincode' || field.type === 'mobile' || field.type === 'altmobile' || field.type === 'aadhaar' || field.type === 'otp') {
                     el.addEventListener('input', (e) => {
                         e.target.value = e.target.value.replace(/\D/g, '');
                     });
