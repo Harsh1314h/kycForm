@@ -1132,101 +1132,24 @@
             return true;
         }
 
-        // Reset Form Inputs with User Confirmation and Exception Protection
+        // Reset Form Inputs with User Confirmation and clean page redirect
         function resetKYCForm() {
             const confirmReset = confirm("Are you sure you want to reset the entire form? All filled progress and uploaded files will be permanently cleared.");
             if (!confirmReset) {
                 return;
             }
 
-            const form = document.getElementById('kycForm');
-            if (form) {
-                try {
-                    // 1. Wipe localStorage first to prevent any auto-save restore interference
-                    localStorage.removeItem('kyc_form_progress');
-                } catch (e) {
-                    console.error("Error clearing localStorage:", e);
-                }
-
-                try {
-                    // 2. Clear all input fields programmatically using a broad selector
-                    const allInputs = form.querySelectorAll('input, textarea');
-                    allInputs.forEach(input => {
-                        const t = input.type;
-                        if (t === 'text' || t === 'email' || t === 'date' || t === 'tel' || t === 'number' || input.tagName === 'TEXTAREA') {
-                            input.value = '';
-                        }
-                    });
-                } catch (e) {
-                    console.error("Error clearing inputs:", e);
-                }
-
-                try {
-                    // 3. Reset all dropdown select elements back to index 0
-                    const selects = form.querySelectorAll('select');
-                    selects.forEach(select => {
-                        select.selectedIndex = 0;
-                    });
-                } catch (e) {
-                    console.error("Error clearing dropdowns:", e);
-                }
-
-                try {
-                    // 4. Clear all file uploads
-                    const fileInputs = form.querySelectorAll('input[type="file"]');
-                    fileInputs.forEach(file => {
-                        file.value = '';
-                    });
-                } catch (e) {
-                    console.error("Error clearing files:", e);
-                }
-
-                try {
-                    // 5. Standard form reset to restore default radio button check states naturally
-                    form.reset();
-                } catch (e) {
-                    console.error("Error running form.reset:", e);
-                }
-
-                try {
-                    // 6. Clear visual validation state indicators and previews
-                    const formControls = form.querySelectorAll('.form-control, .form-select, .upload-zone');
-                    formControls.forEach(ctrl => {
-                        ctrl.classList.remove('is-valid', 'is-invalid');
-                    });
-                    
-                    const feedbacks = form.querySelectorAll('.invalid-feedback');
-                    feedbacks.forEach(fb => {
-                        fb.style.display = 'none';
-                        fb.textContent = '';
-                    });
-                    
-                    const previews = form.querySelectorAll('.upload-preview');
-                    previews.forEach(p => p.classList.add('hidden'));
-                } catch (e) {
-                    console.error("Error resetting visual validation styles:", e);
-                }
-
-                try {
-                    // 7. Re-populate default application date
-                    const today = new Date().toISOString().split('T')[0];
-                    const appDateInput = document.getElementById('<%= txtApplicationDate.ClientID %>');
-                    if (appDateInput) {
-                        appDateInput.value = today;
-                    }
-                } catch (e) {
-                    console.error("Error setting application date:", e);
-                }
-
-                try {
-                    // 8. Restore permanent address toggle visibility state to hidden
-                    togglePermanentAddress(true);
-                } catch (e) {
-                    console.error("Error toggling permanent address:", e);
-                }
-
-                showToast('Form Reset Complete', 'All input fields and uploads have been cleared.', 'info');
+            try {
+                // Wipe auto-save progress cache first
+                localStorage.removeItem('kyc_form_progress');
+            } catch (e) {
+                console.error("Error wiping autosave cache:", e);
             }
+
+            // Redirect to a pristine GET request version of the page
+            // This natively wipes all form values, restores select dropdown indexes, 
+            // clears file streams, and guarantees the page looks 100% brand new!
+            window.location.href = 'Default.aspx';
         }
 
         // Realtime Input Handlers & 18. Numeric-only Key Filtering

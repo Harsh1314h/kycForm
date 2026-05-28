@@ -23,6 +23,11 @@ Public Class _Default
             If txtAppDate IsNot Nothing Then
                 txtAppDate.Text = DateTime.Today.ToString("yyyy-MM-dd")
             End If
+
+            ' Check if we redirected after a successful KYC submission (PRG Pattern)
+            If Request.QueryString("success") = "1" Then
+                InjectServerToast("KYC Submission Success!", "Your digital KYC profile has been verified and registered securely in the core banking database.", "success", clearAutosave:=True)
+            End If
         End If
     End Sub
 
@@ -203,8 +208,9 @@ Public Class _Default
                 End Using
             End Using
 
-            ' 6. Inject beautiful JavaScript success notification to wipe local progress cache and toast success
-            InjectServerToast("KYC Submission Success!", "Your digital KYC profile has been verified and registered securely in the core banking database.", "success", clearAutosave:=True)
+            ' 6. Redirect via Post-Redirect-Get (PRG) pattern to completely clear form, eliminate resubmission popups, and display emerald toast
+            Response.Redirect("Default.aspx?success=1", False)
+            Context.ApplicationInstance.CompleteRequest()
 
         Catch ex As Exception
             InjectServerToast("Database Error", "Failed to register KYC details: " & ex.Message.Replace("'", "\'"), "danger")
