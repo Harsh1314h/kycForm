@@ -1132,10 +1132,34 @@
             return true;
         }
 
-        // Reset Form Inputs
+        // Reset Form Inputs with User Confirmation
         function resetKYCForm() {
+            const confirmReset = confirm("Are you sure you want to reset the entire form? All filled progress and uploaded files will be permanently cleared.");
+            if (!confirmReset) {
+                return;
+            }
+
             const form = document.getElementById('kycForm');
             if (form) {
+                // Explicitly clear all text, email, date inputs and textareas
+                const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="date"], textarea');
+                inputs.forEach(input => {
+                    input.value = '';
+                });
+
+                // Reset all dropdown selectors back to index 0
+                const selects = form.querySelectorAll('select');
+                selects.forEach(select => {
+                    select.selectedIndex = 0;
+                });
+
+                // Clear all posted file streams
+                const files = form.querySelectorAll('input[type="file"]');
+                files.forEach(file => {
+                    file.value = '';
+                });
+
+                // Standard form reset execution
                 form.reset();
                 
                 // Remove all visual validation states
