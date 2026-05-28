@@ -804,6 +804,29 @@
                 return;
             }
             
+            // Check for duplicate files among all uploads (usability safety rule)
+            const fileInputs = [
+                { id: '<%= fileAadhaar.ClientID %>', label: 'Aadhaar Card' },
+                { id: '<%= filePAN.ClientID %>', label: 'PAN Card' },
+                { id: '<%= filePassportDL.ClientID %>', label: 'Passport/DL' },
+                { id: '<%= fileAddressProof.ClientID %>', label: 'Address Proof' },
+                { id: '<%= fileSignature.ClientID %>', label: 'Signature Scan' }
+            ];
+
+            for (const inputInfo of fileInputs) {
+                if (inputInfo.id === input.id) continue;
+                const otherInput = document.getElementById(inputInfo.id);
+                if (otherInput && otherInput.files && otherInput.files.length > 0) {
+                    const otherFile = otherInput.files[0];
+                    if (otherFile.name === file.name && otherFile.size === file.size) {
+                        showToast('Duplicate File', `You have already selected this file ("${file.name}") for the ${inputInfo.label} slot. Please select a distinct document.`, 'danger');
+                        removeFile(null, input.id, previewId, zoneId);
+                        setFieldState(input, false, 'Duplicate file selected.');
+                        return;
+                    }
+                }
+            }
+            
             // 15. File format extensions check
             const ext = file.name.split('.').pop().toLowerCase();
             const allowed = ['pdf', 'jpg', 'jpeg'];
