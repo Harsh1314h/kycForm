@@ -15,7 +15,10 @@
     <link href="css/style.css" rel="stylesheet" />
 </head>
 <body>
-    <form id="kycForm" runat="server">
+    <form id="kycForm" runat="server" enctype="multipart/form-data">
+        <!-- Place for server-side code-behind to dynamically inject toasts -->
+        <asp:Literal ID="litServerToasts" runat="server"></asp:Literal>
+
         <!-- Floating Toast Container for Premium Notifications -->
         <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;" id="toastContainer"></div>
 
@@ -589,7 +592,7 @@
                 <button type="button" class="btn btn-secondary-custom" onclick="resetKYCForm()">
                     <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Form
                 </button>
-                <button type="button" class="btn btn-primary-custom" onclick="validateKYCForm(event)">
+                <button type="submit" id="btnSave" runat="server" onserverclick="btnSave_Click" onclick="if(!validateKYCForm(event)) return false;" class="btn btn-primary-custom">
                     <i class="bi bi-check2-circle me-2"></i>Save
                 </button>
             </div>
@@ -1010,10 +1013,6 @@
 
         // Form Submit Validation Engine
         function validateKYCForm(event) {
-            if (event) {
-                event.preventDefault();
-            }
-            
             let formIsValid = true;
             const errors = [];
             let firstInvalidElement = null;
@@ -1087,6 +1086,9 @@
             
             // Visual Results handling
             if (!formIsValid) {
+                if (event) {
+                    event.preventDefault();
+                }
                 showToast('Form Verification Failed', `Please correct the highlighted fields and try again.`, 'danger');
                 
                 // Focus and scroll to first error control
