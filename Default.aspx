@@ -411,11 +411,11 @@
                         <label class="form-label" for="ddlIncomeRange">Annual Income Range<span class="required-star">*</span></label>
                         <asp:DropDownList ID="ddlIncomeRange" runat="server" CssClass="form-select">
                             <asp:ListItem Value="">-- Select Annual Income --</asp:ListItem>
-                            <asp:ListItem Value="Below1Lakh">Below ₹1,00,000 (Below 1 Lakh)</asp:ListItem>
-                            <asp:ListItem Value="1to5Lakhs">₹1,00,000 - ₹5,00,000 (1 - 5 Lakhs)</asp:ListItem>
-                            <asp:ListItem Value="5to10Lakhs">₹5,00,000 - ₹10,00,000 (5 - 10 Lakhs)</asp:ListItem>
-                            <asp:ListItem Value="10to25Lakhs">₹10,00,000 - ₹25,00,000 (10 - 25 Lakhs)</asp:ListItem>
-                            <asp:ListItem Value="Above25Lakhs">Above ₹25,00,000 (Above 25 Lakhs)</asp:ListItem>
+                            <asp:ListItem Value="Below1Lakh">Below 1 Lakh</asp:ListItem>
+                            <asp:ListItem Value="1to5Lakhs">1 Lakh to 5 Lakhs</asp:ListItem>
+                            <asp:ListItem Value="5to10Lakhs">5 Lakhs to 10 Lakhs</asp:ListItem>
+                            <asp:ListItem Value="10to25Lakhs">10 Lakhs to 25 Lakhs</asp:ListItem>
+                            <asp:ListItem Value="Above25Lakhs">Above 25 Lakhs</asp:ListItem>
                         </asp:DropDownList>
                     </div>
 
