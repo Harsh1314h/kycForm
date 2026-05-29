@@ -147,7 +147,7 @@ Public Class _Default
                             CType(FindControlRecursive(Me, "txtStreet"), TextBox).Text = reader("StreetHouseLandmark").ToString()
                             CType(FindControlRecursive(Me, "txtLocality"), TextBox).Text = reader("AreaLocality").ToString()
                             CType(FindControlRecursive(Me, "txtTown"), TextBox).Text = reader("LocationVillageTown").ToString()
-                            CType(FindControlRecursive(Me, "txtPO"), TextBox).Text = reader("PostOffice").ToString()
+                            CType(FindControlRecursive(Me, "txtPostOffice"), TextBox).Text = reader("PostOffice").ToString()
                             CType(FindControlRecursive(Me, "txtCity"), TextBox).Text = reader("CityDistrict").ToString()
                             CType(FindControlRecursive(Me, "ddlState"), DropDownList).SelectedValue = reader("State").ToString()
                             CType(FindControlRecursive(Me, "txtCountry"), TextBox).Text = reader("Country").ToString()
