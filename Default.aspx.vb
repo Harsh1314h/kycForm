@@ -28,7 +28,210 @@ Public Class _Default
             If Request.QueryString("success") = "1" Then
                 InjectServerToast("KYC Submission Success!", "Your digital KYC profile has been verified and registered securely in the core banking database.", "success", clearAutosave:=True)
             End If
+
+            ' Handle Edit Mode routing
+            Dim editIdStr As String = Request.QueryString("edit")
+            If Not String.IsNullOrEmpty(editIdStr) Then
+                Dim editId As Integer = 0
+                If Integer.TryParse(editIdStr, editId) Then
+                    LoadKYCRecordForEdit(editId)
+                End If
+            End If
         End If
+    End Sub
+
+    ''' <summary>
+    ''' Loads an existing KYC profile from the SQL Server database and populates all form fields.
+    ''' </summary>
+    Private Sub LoadKYCRecordForEdit(ByVal editId As Integer)
+        Dim connString As String = WebConfigurationManager.ConnectionStrings(CONNECTION_STRING_KEY).ConnectionString
+        Dim selectQuery As String = "SELECT * FROM KYCDetails WHERE Id = @Id"
+
+        Try
+            ' Ensure schema is fully bootstrapped
+            EnsureDatabaseSchema()
+
+            Using conn As New SqlConnection(connString)
+                Using cmd As New SqlCommand(selectQuery, conn)
+                    cmd.Parameters.AddWithValue("@Id", editId)
+                    conn.Open()
+                    Using reader As SqlDataReader = cmd.ExecuteReader()
+                        If reader.Read() Then
+                            ' Populate state tracking hidden fields
+                            Dim hdnEditId As HiddenField = CType(FindControlRecursive(Me, "hdnEditId"), HiddenField)
+                            Dim hdnAadhaarPath As HiddenField = CType(FindControlRecursive(Me, "hdnAadhaarPath"), HiddenField)
+                            Dim hdnPANPath As HiddenField = CType(FindControlRecursive(Me, "hdnPANPath"), HiddenField)
+                            Dim hdnDLPath As HiddenField = CType(FindControlRecursive(Me, "hdnDLPath"), HiddenField)
+                            Dim hdnAddrPath As HiddenField = CType(FindControlRecursive(Me, "hdnAddrPath"), HiddenField)
+                            Dim hdnSignPath As HiddenField = CType(FindControlRecursive(Me, "hdnSignPath"), HiddenField)
+
+                            If hdnEditId IsNot Nothing Then hdnEditId.Value = editId.ToString()
+                            If hdnAadhaarPath IsNot Nothing Then hdnAadhaarPath.Value = reader("AadhaarCardPath").ToString()
+                            If hdnPANPath IsNot Nothing Then hdnPANPath.Value = reader("PANCardPath").ToString()
+                            If hdnDLPath IsNot Nothing Then hdnDLPath.Value = If(reader("PassportDLPath") Is DBNull.Value, "", reader("PassportDLPath").ToString())
+                            If hdnAddrPath IsNot Nothing Then hdnAddrPath.Value = If(reader("AddressProofPath") Is DBNull.Value, "", reader("AddressProofPath").ToString())
+                            If hdnSignPath IsNot Nothing Then hdnSignPath.Value = reader("SignatureScanPath").ToString()
+
+                            ' Show Edit Mode visual banner
+                            Dim pnlEditMode As PlaceHolder = CType(FindControlRecursive(Me, "pnlEditMode"), PlaceHolder)
+                            Dim lblEditId As Label = CType(FindControlRecursive(Me, "lblEditId"), Label)
+                            If pnlEditMode IsNot Nothing Then pnlEditMode.Visible = True
+                            If lblEditId IsNot Nothing Then lblEditId.Text = editId.ToString()
+
+                            ' Bind dropdown fields
+                            Dim ddlAcType As DropDownList = CType(FindControlRecursive(Me, "ddlAccountType"), DropDownList)
+                            If ddlAcType IsNot Nothing Then ddlAcType.SelectedValue = reader("AccountType").ToString()
+
+                            Dim ddlPrefBranch As DropDownList = CType(FindControlRecursive(Me, "ddlBranch"), DropDownList)
+                            If ddlPrefBranch IsNot Nothing Then ddlPrefBranch.SelectedValue = reader("PreferredBranch").ToString()
+
+                            Dim txtAppDate As TextBox = CType(FindControlRecursive(Me, "txtApplicationDate"), TextBox)
+                            If txtAppDate IsNot Nothing Then
+                                txtAppDate.Text = Convert.ToDateTime(reader("ApplicationDate")).ToString("yyyy-MM-dd")
+                            End If
+
+                            ' Bind Customer Type radios
+                            Dim rdoInd As HtmlInputRadioButton = CType(FindControlRecursive(Me, "rdoIndividual"), HtmlInputRadioButton)
+                            Dim rdoNonInd As HtmlInputRadioButton = CType(FindControlRecursive(Me, "rdoNonIndividual"), HtmlInputRadioButton)
+                            If rdoInd IsNot Nothing AndAlso rdoNonInd IsNot Nothing Then
+                                If reader("CustomerType").ToString() = "Individual" Then
+                                    rdoInd.Checked = True
+                                    rdoNonInd.Checked = False
+                                Else
+                                    rdoInd.Checked = False
+                                    rdoNonInd.Checked = True
+                                End If
+                            End If
+
+                            ' Contact details
+                            CType(FindControlRecursive(Me, "txtEmail"), TextBox).Text = reader("Email").ToString()
+                            CType(FindControlRecursive(Me, "txtEmailOTP"), TextBox).Text = reader("EmailOTP").ToString()
+                            CType(FindControlRecursive(Me, "txtMobileNumber"), TextBox).Text = reader("MobileNumber").ToString()
+                            CType(FindControlRecursive(Me, "txtAadhaarMobileOTP"), TextBox).Text = reader("AadhaarMobileOTP").ToString()
+                            CType(FindControlRecursive(Me, "txtAlternateMobile"), TextBox).Text = If(reader("AlternateMobileNumber") Is DBNull.Value, "", reader("AlternateMobileNumber").ToString())
+
+                            ' Aadhaar fields
+                            CType(FindControlRecursive(Me, "txtAadhaarNumber"), TextBox).Text = reader("AadhaarNumber").ToString()
+                            CType(FindControlRecursive(Me, "txtAadhaarOTP"), TextBox).Text = reader("AadhaarOTP").ToString()
+                            CType(FindControlRecursive(Me, "txtAadhaarName"), TextBox).Text = reader("AadhaarName").ToString()
+                            CType(FindControlRecursive(Me, "txtAadhaarDOB"), TextBox).Text = Convert.ToDateTime(reader("AadhaarDOB")).ToString("yyyy-MM-dd")
+
+                            ' Gender radios
+                            Dim rdoM As HtmlInputRadioButton = CType(FindControlRecursive(Me, "rdoMale"), HtmlInputRadioButton)
+                            Dim rdoF As HtmlInputRadioButton = CType(FindControlRecursive(Me, "rdoFemale"), HtmlInputRadioButton)
+                            Dim rdoO As HtmlInputRadioButton = CType(FindControlRecursive(Me, "rdoOther"), HtmlInputRadioButton)
+                            If rdoM IsNot Nothing AndAlso rdoF IsNot Nothing AndAlso rdoO IsNot Nothing Then
+                                rdoM.Checked = False : rdoF.Checked = False : rdoO.Checked = False
+                                If reader("Gender").ToString() = "Male" Then
+                                    rdoM.Checked = True
+                                ElseIf reader("Gender").ToString() = "Female" Then
+                                    rdoF.Checked = True
+                                Else
+                                    rdoO.Checked = True
+                                End If
+                            End If
+
+                            ' Personal Information
+                            CType(FindControlRecursive(Me, "txtFullName"), TextBox).Text = reader("FullLegalName").ToString()
+                            CType(FindControlRecursive(Me, "txtFatherName"), TextBox).Text = reader("FatherName").ToString()
+                            CType(FindControlRecursive(Me, "txtMotherName"), TextBox).Text = reader("MotherName").ToString()
+                            CType(FindControlRecursive(Me, "txtSpouseGuardian"), TextBox).Text = reader("SpouseGuardianName").ToString()
+                            CType(FindControlRecursive(Me, "ddlMaritalStatus"), DropDownList).SelectedValue = reader("MaritalStatus").ToString()
+                            CType(FindControlRecursive(Me, "txtNationality"), TextBox).Text = reader("Nationality").ToString()
+                            CType(FindControlRecursive(Me, "txtReligion"), TextBox).Text = If(reader("Religion") Is DBNull.Value, "", reader("Religion").ToString())
+                            CType(FindControlRecursive(Me, "ddlResidentialStatus"), DropDownList).SelectedValue = reader("ResidentialStatus").ToString()
+                            CType(FindControlRecursive(Me, "txtPlaceOfBirth"), TextBox).Text = If(reader("PlaceOfBirth") Is DBNull.Value, "", reader("PlaceOfBirth").ToString())
+                            CType(FindControlRecursive(Me, "txtCountryOfBirth"), TextBox).Text = If(reader("CountryOfBirth") Is DBNull.Value, "", reader("CountryOfBirth").ToString())
+
+                            ' Address details
+                            CType(FindControlRecursive(Me, "txtStreet"), TextBox).Text = reader("StreetHouseLandmark").ToString()
+                            CType(FindControlRecursive(Me, "txtLocality"), TextBox).Text = reader("AreaLocality").ToString()
+                            CType(FindControlRecursive(Me, "txtTown"), TextBox).Text = reader("LocationVillageTown").ToString()
+                            CType(FindControlRecursive(Me, "txtPO"), TextBox).Text = reader("PostOffice").ToString()
+                            CType(FindControlRecursive(Me, "txtCity"), TextBox).Text = reader("CityDistrict").ToString()
+                            CType(FindControlRecursive(Me, "ddlState"), DropDownList).SelectedValue = reader("State").ToString()
+                            CType(FindControlRecursive(Me, "txtCountry"), TextBox).Text = reader("Country").ToString()
+                            CType(FindControlRecursive(Me, "txtPincode"), TextBox).Text = reader("Pincode").ToString()
+                            CType(FindControlRecursive(Me, "ddlAddressType"), DropDownList).SelectedValue = reader("TypeOfAddress").ToString()
+
+                            ' Same address radios
+                            Dim rdoSameYes As HtmlInputRadioButton = CType(FindControlRecursive(Me, "rdoSameYes"), HtmlInputRadioButton)
+                            Dim rdoSameNo As HtmlInputRadioButton = CType(FindControlRecursive(Me, "rdoSameNo"), HtmlInputRadioButton)
+                            If rdoSameYes IsNot Nothing AndAlso rdoSameNo IsNot Nothing Then
+                                rdoSameYes.Checked = False : rdoSameNo.Checked = False
+                                If reader("IsPermanentAddressSame").ToString() = "Yes" Then
+                                    rdoSameYes.Checked = True
+                                Else
+                                    rdoSameNo.Checked = True
+                                    CType(FindControlRecursive(Me, "txtPermanentAddress"), TextBox).Text = reader("PermanentAddress").ToString()
+                                End If
+                            End If
+
+                            ' Employment Details
+                            CType(FindControlRecursive(Me, "ddlOccupation"), DropDownList).SelectedValue = reader("OccupationType").ToString()
+                            CType(FindControlRecursive(Me, "txtEmployerName"), TextBox).Text = If(reader("EmployerName") Is DBNull.Value, "", reader("EmployerName").ToString())
+                            CType(FindControlRecursive(Me, "txtBusinessNature"), TextBox).Text = If(reader("NatureOfBusiness") Is DBNull.Value, "", reader("NatureOfBusiness").ToString())
+                            CType(FindControlRecursive(Me, "txtDesignation"), TextBox).Text = If(reader("Designation") Is DBNull.Value, "", reader("Designation").ToString())
+                            CType(FindControlRecursive(Me, "ddlIncomeRange"), DropDownList).SelectedValue = reader("AnnualIncomeRange").ToString()
+
+                            ' Source of funds
+                            Dim rdoFundsSalary As HtmlInputRadioButton = CType(FindControlRecursive(Me, "rdoFundsSalary"), HtmlInputRadioButton)
+                            Dim rdoFundsBusiness As HtmlInputRadioButton = CType(FindControlRecursive(Me, "rdoFundsBusiness"), HtmlInputRadioButton)
+                            Dim rdoFundsInvestments As HtmlInputRadioButton = CType(FindControlRecursive(Me, "rdoFundsInvestments"), HtmlInputRadioButton)
+                            If rdoFundsSalary IsNot Nothing AndAlso rdoFundsBusiness IsNot Nothing AndAlso rdoFundsInvestments IsNot Nothing Then
+                                rdoFundsSalary.Checked = False : rdoFundsBusiness.Checked = False : rdoFundsInvestments.Checked = False
+                                If reader("SourceOfFunds").ToString() = "Salary" Then
+                                    rdoFundsSalary.Checked = True
+                                ElseIf reader("SourceOfFunds").ToString() = "Business" Then
+                                    rdoFundsBusiness.Checked = True
+                                ElseIf reader("SourceOfFunds").ToString() = "Investments" Then
+                                    rdoFundsInvestments.Checked = True
+                                End If
+                            End If
+
+                            ' ID Proofs
+                            CType(FindControlRecursive(Me, "txtPANNumber"), TextBox).Text = reader("PANNumber").ToString()
+                            CType(FindControlRecursive(Me, "txtPANHolderName"), TextBox).Text = reader("PANHolderName").ToString()
+                            CType(FindControlRecursive(Me, "txtDLNumber"), TextBox).Text = If(reader("DrivingLicenceNumber") Is DBNull.Value, "", reader("DrivingLicenceNumber").ToString())
+                            CType(FindControlRecursive(Me, "txtDLDOB"), TextBox).Text = If(reader("DrivingLicenceDOB") Is DBNull.Value, "", Convert.ToDateTime(reader("DrivingLicenceDOB")).ToString("yyyy-MM-dd"))
+                            CType(FindControlRecursive(Me, "txtDLName"), TextBox).Text = If(reader("DrivingLicenceName") Is DBNull.Value, "", reader("DrivingLicenceName").ToString())
+
+                            ' Inject beautiful dynamic feedback script to visual dropzones (Zero placeholders)
+                            Dim previewScript As String = String.Format(
+                                "<script type='text/javascript'>" & vbCrLf &
+                                "    window.addEventListener('DOMContentLoaded', () => {{" & vbCrLf &
+                                "        document.getElementById('zoneAadhaar').classList.add('has-file');" & vbCrLf &
+                                "        document.getElementById('previewAadhaar').innerHTML = '<span class=""text-success fw-bold""><i class=""bi bi-check-circle-fill me-1""></i>Aadhaar Uploaded</span>';" & vbCrLf &
+                                "        document.getElementById('zonePAN').classList.add('has-file');" & vbCrLf &
+                                "        document.getElementById('previewPAN').innerHTML = '<span class=""text-success fw-bold""><i class=""bi bi-check-circle-fill me-1""></i>PAN Uploaded</span>';" & vbCrLf &
+                                "        document.getElementById('zoneSignature').classList.add('has-file');" & vbCrLf &
+                                "        document.getElementById('previewSignature').innerHTML = '<span class=""text-success fw-bold""><i class=""bi bi-check-circle-fill me-1""></i>Signature Uploaded</span>';" & vbCrLf &
+                                "        if('{0}' !== '') {{" & vbCrLf &
+                                "            document.getElementById('zonePassportDL').classList.add('has-file');" & vbCrLf &
+                                "            document.getElementById('previewPassportDL').innerHTML = '<span class=""text-success fw-bold""><i class=""bi bi-check-circle-fill me-1""></i>Passport/DL Uploaded</span>';" & vbCrLf &
+                                "        }}" & vbCrLf &
+                                "        if('{1}' !== '') {{" & vbCrLf &
+                                "            document.getElementById('zoneAddressProof').classList.add('has-file');" & vbCrLf &
+                                "            document.getElementById('previewAddressProof').innerHTML = '<span class=""text-success fw-bold""><i class=""bi bi-check-circle-fill me-1""></i>Address Proof Uploaded</span>';" & vbCrLf &
+                                "        }}" & vbCrLf &
+                                "    }});" & vbCrLf &
+                                "</script>",
+                                If(reader("PassportDLPath") Is DBNull.Value, "", "loaded"),
+                                If(reader("AddressProofPath") Is DBNull.Value, "", "loaded")
+                            )
+                            Dim litServerToasts As Literal = CType(FindControlRecursive(Me, "litServerToasts"), Literal)
+                            If litServerToasts IsNot Nothing Then
+                                litServerToasts.Text = previewScript
+                            End If
+                        Else
+                            InjectServerToast("Profile Not Found", "The requested KYC ID does not exist in our core database.", "danger")
+                        End If
+                    End Using
+                End Using
+            End Using
+        Catch ex As Exception
+            InjectServerToast("Database Error", "Failed to load record details: " & ex.Message.Replace("'", "\'"), "danger")
+        End Try
     End Sub
 
     ''' <summary>
@@ -98,6 +301,16 @@ Public Class _Default
             Dim fileAddressProof As FileUpload = CType(FindControlRecursive(Me, "fileAddressProof"), FileUpload)
             Dim fileSignature As FileUpload = CType(FindControlRecursive(Me, "fileSignature"), FileUpload)
 
+            ' Check Edit Mode State
+            Dim isEditMode As Boolean = False
+            Dim editId As Integer = 0
+            Dim hdnEditId As HiddenField = CType(FindControlRecursive(Me, "hdnEditId"), HiddenField)
+            If hdnEditId IsNot Nothing AndAlso Not String.IsNullOrEmpty(hdnEditId.Value) Then
+                If Integer.TryParse(hdnEditId.Value, editId) Then
+                    isEditMode = True
+                End If
+            End If
+
             ' Determine active radio checked texts
             Dim custType As String = If(rdoInd IsNot Nothing AndAlso rdoInd.Checked, "Individual", "Non-Individual")
             Dim gender As String = GetSelectedGender()
@@ -115,44 +328,64 @@ Public Class _Default
             Dim cleanAadhaar As String = txtAadhaarNum.Text.Trim()
             Dim cleanPAN As String = txtPAN.Text.Trim().ToUpper()
 
-            Dim duplicateMsg As String = CheckDuplicates(cleanAadhaar, cleanPAN)
+            Dim duplicateMsg As String = CheckDuplicates(cleanAadhaar, cleanPAN, If(isEditMode, editId, 0))
             If Not String.IsNullOrEmpty(duplicateMsg) Then
                 InjectServerToast("Profile Conflict", duplicateMsg, "danger")
                 Return
             End If
 
             ' 4. Server-Side File Upload Streams Validation (Format & Size <= 2MB)
-            If Not ValidateAndSaveFiles(fileAadhaar, filePAN, filePassportDL, fileAddressProof, fileSignature, _
+            If Not ValidateAndSaveFiles(fileAadhaar, filePAN, filePassportDL, fileAddressProof, fileSignature, isEditMode, _
                                          outAadhaarPath, outPANPath, outDLPath, outAddrPath, outSignPath, errorMsg) Then
                 InjectServerToast("Upload Failure", errorMsg, "danger")
                 Return
             End If
 
-            ' 5. Perform Secure Database Insertion using Parameterized Query to prevent SQL injection
+            ' 5. Perform Secure Database Insertion or Updating using Parameterized Queries
             Dim connString As String = WebConfigurationManager.ConnectionStrings(CONNECTION_STRING_KEY).ConnectionString
-            Dim insertQuery As String = "INSERT INTO KYCDetails (" & _
-                "AccountType, CustomerType, PreferredBranch, ApplicationDate, Email, EmailOTP, MobileNumber, " & _
-                "AlternateMobileNumber, AadhaarMobileOTP, AadhaarNumber, AadhaarOTP, AadhaarName, AadhaarDOB, Gender, " & _
-                "FullLegalName, FatherName, MotherName, SpouseGuardianName, MaritalStatus, Nationality, Religion, " & _
-                "ResidentialStatus, PlaceOfBirth, CountryOfBirth, StreetHouseLandmark, AreaLocality, LocationVillageTown, " & _
-                "PostOffice, CityDistrict, State, Country, Pincode, TypeOfAddress, IsPermanentAddressSame, PermanentAddress, " & _
-                "OccupationType, EmployerName, NatureOfBusiness, Designation, AnnualIncomeRange, SourceOfFunds, " & _
-                "PANNumber, PANHolderName, DrivingLicenceNumber, DrivingLicenceDOB, DrivingLicenceName, " & _
-                "AadhaarCardPath, PANCardPath, PassportDLPath, AddressProofPath, SignatureScanPath" & _
-                ") VALUES (" & _
-                "@AcType, @CustType, @Branch, @AppDate, @Email, @EmailOTP, @Mobile, @AltMobile, @AadhaarMobileOTP, " & _
-                "@AadhaarNum, @AadhaarOTP, @AadhaarName, @AadhaarDOB, @Gender, @FullName, @FatherName, @MotherName, " & _
-                "@Spouse, @Marital, @Nat, @Rel, @ResStatus, @PlaceOfBirth, @CountryOfBirth, @Street, @Locality, @Town, " & _
-                "@PO, @City, @State, @Country, @Pin, @AddrType, @IsSame, @PermAddr, @Occ, @EmpName, @BusNature, @Role, " & _
-                "@Income, @Funds, @PAN, @PANName, @DLNum, @DLDOB, @DLName, @AadhaarPath, @PANPath, @DLPath, @AddrPath, @SignPath)"
+            Dim sqlQuery As String = ""
+
+            If isEditMode Then
+                sqlQuery = "UPDATE KYCDetails SET " & _
+                    "AccountType = @AcType, CustomerType = @CustType, PreferredBranch = @Branch, Email = @Email, EmailOTP = @EmailOTP, " & _
+                    "MobileNumber = @Mobile, AlternateMobileNumber = @AltMobile, AadhaarMobileOTP = @AadhaarMobileOTP, " & _
+                    "AadhaarNumber = @AadhaarNum, AadhaarOTP = @AadhaarOTP, AadhaarName = @AadhaarName, AadhaarDOB = @AadhaarDOB, " & _
+                    "Gender = @Gender, FullLegalName = @FullName, FatherName = @FatherName, MotherName = @MotherName, " & _
+                    "SpouseGuardianName = @Spouse, MaritalStatus = @Marital, Nationality = @Nat, Religion = @Rel, " & _
+                    "ResidentialStatus = @ResStatus, PlaceOfBirth = @PlaceOfBirth, CountryOfBirth = @CountryOfBirth, " & _
+                    "StreetHouseLandmark = @Street, AreaLocality = @Locality, LocationVillageTown = @Town, " & _
+                    "PostOffice = @PO, CityDistrict = @City, State = @State, Country = @Country, Pincode = @Pin, " & _
+                    "TypeOfAddress = @AddrType, IsPermanentAddressSame = @IsSame, PermanentAddress = @PermAddr, " & _
+                    "OccupationType = @Occ, EmployerName = @EmpName, NatureOfBusiness = @BusNature, Designation = @Role, " & _
+                    "AnnualIncomeRange = @Income, SourceOfFunds = @Funds, PANNumber = @PAN, PANHolderName = @PANName, " & _
+                    "DrivingLicenceNumber = @DLNum, DrivingLicenceDOB = @DLDOB, DrivingLicenceName = @DLName, " & _
+                    "AadhaarCardPath = @AadhaarPath, PANCardPath = @PANPath, PassportDLPath = @DLPath, " & _
+                    "AddressProofPath = @AddrPath, SignatureScanPath = @SignPath " & _
+                    "WHERE Id = @Id"
+            Else
+                sqlQuery = "INSERT INTO KYCDetails (" & _
+                    "AccountType, CustomerType, PreferredBranch, ApplicationDate, Email, EmailOTP, MobileNumber, " & _
+                    "AlternateMobileNumber, AadhaarMobileOTP, AadhaarNumber, AadhaarOTP, AadhaarName, AadhaarDOB, Gender, " & _
+                    "FullLegalName, FatherName, MotherName, SpouseGuardianName, MaritalStatus, Nationality, Religion, " & _
+                    "ResidentialStatus, PlaceOfBirth, CountryOfBirth, StreetHouseLandmark, AreaLocality, LocationVillageTown, " & _
+                    "PostOffice, CityDistrict, State, Country, Pincode, TypeOfAddress, IsPermanentAddressSame, PermanentAddress, " & _
+                    "OccupationType, EmployerName, NatureOfBusiness, Designation, AnnualIncomeRange, SourceOfFunds, " & _
+                    "PANNumber, PANHolderName, DrivingLicenceNumber, DrivingLicenceDOB, DrivingLicenceName, " & _
+                    "AadhaarCardPath, PANCardPath, PassportDLPath, AddressProofPath, SignatureScanPath" & _
+                    ") VALUES (" & _
+                    "@AcType, @CustType, @Branch, @AppDate, @Email, @EmailOTP, @Mobile, @AltMobile, @AadhaarMobileOTP, " & _
+                    "@AadhaarNum, @AadhaarOTP, @AadhaarName, @AadhaarDOB, @Gender, @FullName, @FatherName, @MotherName, " & _
+                    "@Spouse, @Marital, @Nat, @Rel, @ResStatus, @PlaceOfBirth, @CountryOfBirth, @Street, @Locality, @Town, " & _
+                    "@PO, @City, @State, @Country, @Pin, @AddrType, @IsSame, @PermAddr, @Occ, @EmpName, @BusNature, @Role, " & _
+                    "@Income, @Funds, @PAN, @PANName, @DLNum, @DLDOB, @DLName, @AadhaarPath, @PANPath, @DLPath, @AddrPath, @SignPath)"
+            End If
 
             Using conn As New SqlConnection(connString)
-                Using cmd As New SqlCommand(insertQuery, conn)
+                Using cmd As New SqlCommand(sqlQuery, conn)
                     ' Bind all parameters safely
                     cmd.Parameters.AddWithValue("@AcType", ddlAcType.SelectedValue)
                     cmd.Parameters.AddWithValue("@CustType", custType)
                     cmd.Parameters.AddWithValue("@Branch", ddlPrefBranch.SelectedValue)
-                    cmd.Parameters.AddWithValue("@AppDate", DateTime.Today)
                     cmd.Parameters.AddWithValue("@Email", txtEmail.Text.Trim())
                     cmd.Parameters.AddWithValue("@EmailOTP", txtEmailOTP.Text.Trim())
                     cmd.Parameters.AddWithValue("@Mobile", txtMobile.Text.Trim())
@@ -203,13 +436,23 @@ Public Class _Default
                     cmd.Parameters.AddWithValue("@AddrPath", If(String.IsNullOrEmpty(outAddrPath), DBNull.Value, outAddrPath))
                     cmd.Parameters.AddWithValue("@SignPath", outSignPath)
 
+                    If isEditMode Then
+                        cmd.Parameters.AddWithValue("@Id", editId)
+                    Else
+                        cmd.Parameters.AddWithValue("@AppDate", DateTime.Today)
+                    End If
+
                     conn.Open()
                     cmd.ExecuteNonQuery()
                 End Using
             End Using
 
-            ' 6. Redirect via Post-Redirect-Get (PRG) pattern to completely clear form, eliminate resubmission popups, and display emerald toast
-            Response.Redirect("Default.aspx?success=1", False)
+            ' 6. Redirect via Post-Redirect-Get (PRG) pattern
+            If isEditMode Then
+                Response.Redirect("ManageKYC.aspx?update=1", False)
+            Else
+                Response.Redirect("Default.aspx?success=1", False)
+            End If
             Context.ApplicationInstance.CompleteRequest()
 
         Catch ex As Exception
@@ -239,7 +482,7 @@ Public Class _Default
     ''' <summary>
     ''' Validates file uploads (extension and size less than or equal to 2MB) and saves them securely inside /Uploads folder.
     ''' </summary>
-    Private Function ValidateAndSaveFiles(ByVal fAadhaar As FileUpload, ByVal fPAN As FileUpload, ByVal fDL As FileUpload, ByVal fAddr As FileUpload, ByVal fSign As FileUpload, ByRef pathAadhaar As String, ByRef pathPAN As String, ByRef pathDL As String, ByRef pathAddr As String, ByRef pathSign As String, ByRef errOut As String) As Boolean
+    Private Function ValidateAndSaveFiles(ByVal fAadhaar As FileUpload, ByVal fPAN As FileUpload, ByVal fDL As FileUpload, ByVal fAddr As FileUpload, ByVal fSign As FileUpload, ByVal isEdit As Boolean, ByRef pathAadhaar As String, ByRef pathPAN As String, ByRef pathDL As String, ByRef pathAddr As String, ByRef pathSign As String, ByRef errOut As String) As Boolean
         Try
             ' Create Uploads directory in root if it does not exist
             Dim uploadFolder As String = Server.MapPath("~/Uploads")
@@ -247,30 +490,61 @@ Public Class _Default
                 Directory.CreateDirectory(uploadFolder)
             End If
 
-            ' Mandatory uploads check
-            If fAadhaar Is Nothing OrElse Not fAadhaar.HasFile Then
-                errOut = "Aadhaar Card document upload is required."
-                Return False
-            End If
-            If fPAN Is Nothing OrElse Not fPAN.HasFile Then
-                errOut = "PAN Card document upload is required."
-                Return False
-            End If
-            If fSign Is Nothing OrElse Not fSign.HasFile Then
-                errOut = "Signature Scan upload is required."
-                Return False
+            ' Mandatory uploads check (only if not editing)
+            If Not isEdit Then
+                If fAadhaar Is Nothing OrElse Not fAadhaar.HasFile Then
+                    errOut = "Aadhaar Card document upload is required."
+                    Return False
+                End If
+                If fPAN Is Nothing OrElse Not fPAN.HasFile Then
+                    errOut = "PAN Card document upload is required."
+                    Return False
+                End If
+                If fSign Is Nothing OrElse Not fSign.HasFile Then
+                    errOut = "Signature Scan upload is required."
+                    Return False
+                End If
             End If
 
-            ' Process files
-            If Not SaveSingleFile(fAadhaar, "Aadhaar", uploadFolder, pathAadhaar, errOut) Then Return False
-            If Not SaveSingleFile(fPAN, "PAN", uploadFolder, pathPAN, errOut) Then Return False
+            ' Process files - if in edit mode and no file is chosen, we keep the original path (pre-filled from hidden fields)
+            If fAadhaar IsNot Nothing AndAlso fAadhaar.HasFile Then
+                If Not SaveSingleFile(fAadhaar, "Aadhaar", uploadFolder, pathAadhaar, errOut) Then Return False
+            ElseIf isEdit Then
+                Dim hdnAadhaarPath As HiddenField = CType(FindControlRecursive(Me, "hdnAadhaarPath"), HiddenField)
+                If hdnAadhaarPath IsNot Nothing Then pathAadhaar = hdnAadhaarPath.Value
+            End If
+
+            If fPAN IsNot Nothing AndAlso fPAN.HasFile Then
+                If Not SaveSingleFile(fPAN, "PAN", uploadFolder, pathPAN, errOut) Then Return False
+            ElseIf isEdit Then
+                Dim hdnPANPath As HiddenField = CType(FindControlRecursive(Me, "hdnPANPath"), HiddenField)
+                If hdnPANPath IsNot Nothing Then pathPAN = hdnPANPath.Value
+            End If
+
             If fDL IsNot Nothing AndAlso fDL.HasFile Then
                 If Not SaveSingleFile(fDL, "PassportDL", uploadFolder, pathDL, errOut) Then Return False
+            ElseIf isEdit Then
+                Dim hdnDLPath As HiddenField = CType(FindControlRecursive(Me, "hdnDLPath"), HiddenField)
+                If hdnDLPath IsNot Nothing Then pathDL = hdnDLPath.Value
+            Else
+                pathDL = ""
             End If
+
             If fAddr IsNot Nothing AndAlso fAddr.HasFile Then
                 If Not SaveSingleFile(fAddr, "AddressProof", uploadFolder, pathAddr, errOut) Then Return False
+            ElseIf isEdit Then
+                Dim hdnAddrPath As HiddenField = CType(FindControlRecursive(Me, "hdnAddrPath"), HiddenField)
+                If hdnAddrPath IsNot Nothing Then pathAddr = hdnAddrPath.Value
+            Else
+                pathAddr = ""
             End If
-            If Not SaveSingleFile(fSign, "Signature", uploadFolder, pathSign, errOut) Then Return False
+
+            If fSign IsNot Nothing AndAlso fSign.HasFile Then
+                If Not SaveSingleFile(fSign, "Signature", uploadFolder, pathSign, errOut) Then Return False
+            ElseIf isEdit Then
+                Dim hdnSignPath As HiddenField = CType(FindControlRecursive(Me, "hdnSignPath"), HiddenField)
+                If hdnSignPath IsNot Nothing Then pathSign = hdnSignPath.Value
+            End If
 
             Return True
         Catch ex As Exception
@@ -307,11 +581,11 @@ Public Class _Default
     ''' <summary>
     ''' Performs server-side duplicate checking on Aadhaar and PAN fields.
     ''' </summary>
-    Private Function CheckDuplicates(ByVal aadhaar As String, ByVal pan As String) As String
+    Private Function CheckDuplicates(ByVal aadhaar As String, ByVal pan As String, Optional ByVal excludeId As Integer = 0) As String
         Dim connString As String = WebConfigurationManager.ConnectionStrings(CONNECTION_STRING_KEY).ConnectionString
         Dim query As String = "SELECT " & _
-            "SUM(CASE WHEN AadhaarNumber = @Aadhaar THEN 1 ELSE 0 END) As AadhaarCount, " & _
-            "SUM(CASE WHEN PANNumber = @PAN THEN 1 ELSE 0 END) As PANCount " & _
+            "SUM(CASE WHEN AadhaarNumber = @Aadhaar AND Id <> @ExcludeId THEN 1 ELSE 0 END) As AadhaarCount, " & _
+            "SUM(CASE WHEN PANNumber = @PAN AND Id <> @ExcludeId THEN 1 ELSE 0 END) As PANCount " & _
             "FROM KYCDetails"
 
         Try
@@ -319,6 +593,7 @@ Public Class _Default
                 Using cmd As New SqlCommand(query, conn)
                     cmd.Parameters.AddWithValue("@Aadhaar", aadhaar)
                     cmd.Parameters.AddWithValue("@PAN", pan)
+                    cmd.Parameters.AddWithValue("@ExcludeId", excludeId)
 
                     conn.Open()
                     Using reader As SqlDataReader = cmd.ExecuteReader()
@@ -423,11 +698,18 @@ Public Class _Default
                     "[PassportDLPath] NVARCHAR(500) NULL, " & _
                     "[AddressProofPath] NVARCHAR(500) NULL, " & _
                     "[SignatureScanPath] NVARCHAR(500) NOT NULL, " & _
-                    "[CreatedAt] DATETIME DEFAULT GETDATE()" & _
+                    "[CreatedAt] DATETIME DEFAULT GETDATE(), " & _
+                    "[VerificationStatus] NVARCHAR(20) DEFAULT 'Pending' NOT NULL" & _
                     ");"
                 Using cmd As New SqlCommand(tblQuery, conn)
                     conn.Open()
                     cmd.ExecuteNonQuery()
+                End Using
+
+                Dim alterQuery As String = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[KYCDetails]') AND name = 'VerificationStatus') " & _
+                    "ALTER TABLE [dbo].[KYCDetails] ADD [VerificationStatus] NVARCHAR(20) DEFAULT 'Pending' NOT NULL;"
+                Using cmdAlter As New SqlCommand(alterQuery, conn)
+                    cmdAlter.ExecuteNonQuery()
                 End Using
             End Using
         Catch ex As Exception

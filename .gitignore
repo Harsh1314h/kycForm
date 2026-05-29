@@ -24,3 +24,6 @@ Publish/
 *.publishproj
 *.pubxml
 *.pubxml.user
+
+# Customer Uploads
+Uploads/

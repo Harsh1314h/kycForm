@@ -19,6 +19,14 @@
         <!-- Place for server-side code-behind to dynamically inject toasts -->
         <asp:Literal ID="litServerToasts" runat="server"></asp:Literal>
 
+        <!-- Hidden fields for Edit Mode State tracking -->
+        <asp:HiddenField ID="hdnEditId" runat="server" Value="" />
+        <asp:HiddenField ID="hdnAadhaarPath" runat="server" Value="" />
+        <asp:HiddenField ID="hdnPANPath" runat="server" Value="" />
+        <asp:HiddenField ID="hdnDLPath" runat="server" Value="" />
+        <asp:HiddenField ID="hdnAddrPath" runat="server" Value="" />
+        <asp:HiddenField ID="hdnSignPath" runat="server" Value="" />
+
         <!-- Floating Toast Container for Premium Notifications -->
         <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;" id="toastContainer"></div>
 
@@ -29,6 +37,20 @@
                 <h1>Secure Digital KYC Portal</h1>
                 <p>Please fill out the mandatory (<span class="text-danger">*</span>) fields accurately. This details are required for identity verification, regulatory compliance, and account setup.</p>
             </div>
+
+            <!-- Edit Mode Banner -->
+            <asp:PlaceHolder ID="pnlEditMode" runat="server" Visible="false">
+                <div class="alert alert-warning d-flex align-items-center justify-content-between mb-4 border-0 shadow-sm" style="background: rgba(245, 158, 11, 0.15); border-radius: 12px; color: var(--slate-700); padding: 1rem 1.5rem;">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-pencil-square fs-4 text-warning"></i>
+                        <div>
+                            <h6 class="fw-bold mb-0">Admin Edit Mode Active</h6>
+                            <small class="opacity-75">You are currently modifying an existing KYC record (ID: <strong><asp:Label ID="lblEditId" runat="server" /></strong>). Saving will update the database directly.</small>
+                        </div>
+                    </div>
+                    <a href="ManageKYC.aspx" class="btn btn-sm btn-outline-warning border-2 fw-semibold px-3" style="border-radius: 8px;">Cancel Edit</a>
+                </div>
+            </asp:PlaceHolder>
 
             <!-- Client-side alerts for interactive actions (Simulated OTPs) -->
             <div id="alertPlaceholder"></div>
@@ -1076,6 +1098,7 @@
             }
             
             // 3. Validate Mandatory File Uploads (Aadhaar, PAN, Signature)
+            const isEditMode = document.getElementById('<%= hdnEditId.ClientID %>').value !== '';
             const mandatoryFiles = [
                 { id: '<%= fileAadhaar.ClientID %>', label: 'Aadhaar Card File' },
                 { id: '<%= filePAN.ClientID %>', label: 'PAN Card File' },
@@ -1086,16 +1109,20 @@
                 const input = document.getElementById(fileField.id);
                 if (input) {
                     if (input.files.length === 0) {
-                        setFieldState(input, false, `${fileField.label} is required.`);
-                        formIsValid = false;
-                        errors.push(fileField.label);
-                        if (!firstInvalidElement) {
-                            const fileZoneMap = {
-                                '<%= fileAadhaar.ClientID %>': 'zoneAadhaar',
-                                '<%= filePAN.ClientID %>': 'zonePAN',
-                                '<%= fileSignature.ClientID %>': 'zoneSignature'
-                            };
-                            firstInvalidElement = document.getElementById(fileZoneMap[fileField.id]);
+                        if (!isEditMode) {
+                            setFieldState(input, false, `${fileField.label} is required.`);
+                            formIsValid = false;
+                            errors.push(fileField.label);
+                            if (!firstInvalidElement) {
+                                const fileZoneMap = {
+                                    '<%= fileAadhaar.ClientID %>': 'zoneAadhaar',
+                                    '<%= filePAN.ClientID %>': 'zonePAN',
+                                    '<%= fileSignature.ClientID %>': 'zoneSignature'
+                                };
+                                firstInvalidElement = document.getElementById(fileZoneMap[fileField.id]);
+                            }
+                        } else {
+                            setFieldState(input, true); // Mark as valid in Edit Mode since it exists
                         }
                     } else {
                         if (input.classList.contains('is-invalid')) {
