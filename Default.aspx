@@ -1301,6 +1301,19 @@
 
         // Initial setup on Page Load
         window.addEventListener('DOMContentLoaded', () => {
+            // Check if we are requesting a new, pristine form from the dashboard
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('new') === '1') {
+                try {
+                    localStorage.removeItem('kyc_form_progress');
+                } catch (e) {
+                    console.error("Error wiping autosave cache:", e);
+                }
+                // Clean redirect to wipe search params and show pristine form
+                window.location.href = 'Default.aspx';
+                return;
+            }
+
             // Restore progress before setting up validation listeners
             restoreKYCProgress();
             

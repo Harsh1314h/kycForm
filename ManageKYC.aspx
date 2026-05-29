@@ -31,7 +31,7 @@
                     <h1>KYC Records Dashboard</h1>
                     <p>Review submitted KYC applications, verify credentials, manage status workflows, and perform core CRUD operations securely.</p>
                 </div>
-                <a href="Default.aspx" class="btn btn-light fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 border-0 shadow-sm" style="border-radius: 12px; color: #1e3a8a;">
+                <a href="Default.aspx?new=1" class="btn btn-light fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 border-0 shadow-sm" style="border-radius: 12px; color: #1e3a8a;">
                     <i class="bi bi-file-earmark-plus"></i> Submit New KYC
                 </a>
             </div>
