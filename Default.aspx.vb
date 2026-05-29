@@ -447,14 +447,15 @@ Public Class _Default
                 End Using
             End Using
 
-            ' 6. Redirect via Post-Redirect-Get (PRG) pattern
+            ' 6. Redirect via Post-Redirect-Get (PRG) pattern - set to True for secure thread termination
             If isEditMode Then
-                Response.Redirect("ManageKYC.aspx?update=1", False)
+                Response.Redirect("ManageKYC.aspx?update=1", True)
             Else
-                Response.Redirect("Default.aspx?success=1", False)
+                Response.Redirect("Default.aspx?success=1", True)
             End If
-            Context.ApplicationInstance.CompleteRequest()
 
+        Catch ex As System.Threading.ThreadAbortException
+            ' Normal behavior during Redirect(..., True)
         Catch ex As Exception
             InjectServerToast("Database Error", "Failed to register KYC details: " & ex.Message.Replace("'", "\'"), "danger")
         End Try

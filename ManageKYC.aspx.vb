@@ -20,6 +20,10 @@ Public Class ManageKYC
         Try
             EnsureDatabaseSchema()
             
+            ' Clear modal script by default so it doesn't auto-popup on other postbacks
+            Dim litModalScript As Literal = CType(FindControlRecursive(Me, "litModalScript"), Literal)
+            If litModalScript IsNot Nothing Then litModalScript.Text = ""
+            
             If Not IsPostBack Then
                 ' Bind counts and records
                 BindMetricsCounters()
@@ -165,9 +169,10 @@ Public Class ManageKYC
                 End Using
             End Using
 
-            ' Redirect GET back to prevent F5 resubmissions
-            Response.Redirect("ManageKYC.aspx?deleted=1", False)
-            Context.ApplicationInstance.CompleteRequest()
+            ' Redirect GET back to prevent F5 resubmissions - set to True for secure thread abortion
+            Response.Redirect("ManageKYC.aspx?deleted=1", True)
+        Catch ex As System.Threading.ThreadAbortException
+            ' Normal behavior during Redirect(..., True)
         Catch ex As Exception
             InjectServerToast("Deletion Failure", "Failed to delete: " & ex.Message.Replace("'", "\'"), "danger")
         End Try
@@ -329,8 +334,15 @@ Public Class ManageKYC
                                 If pnlDocAddress IsNot Nothing Then pnlDocAddress.Visible = False
                             End If
 
-                            ' Trigger script execution to show modal popup
-                            ScriptManager.RegisterStartupScript(Me, Me.GetType(), "OpenModal", "showDetailsModal();", True)
+                             ' Trigger script execution to show modal popup (dynamic literal injection for 100% reliability)
+                            Dim litModalScript As Literal = CType(FindControlRecursive(Me, "litModalScript"), Literal)
+                            If litModalScript IsNot Nothing Then
+                                litModalScript.Text = "<script type='text/javascript'>" & vbCrLf & _
+                                    "    window.addEventListener('DOMContentLoaded', () => {" & vbCrLf & _
+                                    "        showDetailsModal();" & vbCrLf & _
+                                    "    });" & vbCrLf & _
+                                    "</script>"
+                            End If
                         Else
                             InjectServerToast("Record Alert", "Failed to retrieve profile: record not found.", "danger")
                         End If
@@ -423,9 +435,10 @@ Public Class ManageKYC
                     End Using
                 End Using
 
-                ' Redirect GET back to dashboard (PRG pattern)
-                Response.Redirect("ManageKYC.aspx?status=" & statusRedirectCode, False)
-                Context.ApplicationInstance.CompleteRequest()
+                ' Redirect GET back to dashboard (PRG pattern) - set to True for secure thread abortion
+                Response.Redirect("ManageKYC.aspx?status=" & statusRedirectCode, True)
+            Catch ex As System.Threading.ThreadAbortException
+                ' Normal behavior during Redirect(..., True)
             Catch ex As Exception
                 InjectServerToast("Audit Update Error", "Failed to update workflow state: " & ex.Message.Replace("'", "\'"), "danger")
             End Try

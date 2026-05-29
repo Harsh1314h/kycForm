@@ -18,6 +18,7 @@
     <form id="adminForm" runat="server">
         <!-- Place for server-side code-behind to dynamically inject toasts -->
         <asp:Literal ID="litServerToasts" runat="server"></asp:Literal>
+        <asp:Literal ID="litModalScript" runat="server"></asp:Literal>
 
         <!-- Floating Toast Container for Premium Notifications -->
         <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;" id="toastContainer"></div>
