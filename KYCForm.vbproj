@@ -81,6 +81,7 @@
   <ItemGroup>
     <Content Include="Default.aspx" />
     <Content Include="ManageKYC.aspx" />
+    <Content Include="Download.aspx" />
     <Content Include="Web.config" />
     <Content Include="css\style.css" />
   </ItemGroup>
@@ -91,6 +92,10 @@
     </Compile>
     <Compile Include="ManageKYC.aspx.vb">
       <DependentUpon>ManageKYC.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Download.aspx.vb">
+      <DependentUpon>Download.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />

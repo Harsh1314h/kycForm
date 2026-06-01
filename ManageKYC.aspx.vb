@@ -40,6 +40,8 @@ Public Class ManageKYC
                     InjectServerToast("Status Rejected", "The profile has been marked as rejected due to compliance audit failure.", "danger")
                 ElseIf Request.QueryString("status") = "3" Then
                     InjectServerToast("Status Pending", "The profile has been marked back to pending audit review.", "warning")
+                ElseIf Request.QueryString("missingfile") = "1" Then
+                    InjectServerToast("File Not Found", "The requested document file could not be found or has been deleted from the server storage.", "danger")
                 End If
             End If
         Catch ex As Exception
@@ -154,13 +156,33 @@ Public Class ManageKYC
     End Sub
 
     ''' <summary>
-    ''' Performs parameterized SQL DELETE statement.
+    ''' Performs parameterized SQL DELETE statement and prunes physical uploaded files on disk.
     ''' </summary>
     Private Sub DeleteRecordSecurely(ByVal recordId As Integer)
         Dim connString As String = WebConfigurationManager.ConnectionStrings(CONNECTION_STRING_KEY).ConnectionString
-        Dim deleteQuery As String = "DELETE FROM KYCDetails WHERE Id = @Id"
+        Dim selectPathsQuery As String = "SELECT [AadhaarCardPath], [PANCardPath], [PassportDLPath], [AddressProofPath], [SignatureScanPath] FROM [KYCDetails] WHERE [Id] = @Id"
+        Dim deleteQuery As String = "DELETE FROM [KYCDetails] WHERE [Id] = @Id"
+        Dim filesToPrune As New System.Collections.Generic.List(Of String)()
 
         Try
+            ' 1. Select the file paths first
+            Using conn As New SqlConnection(connString)
+                Using cmdSelect As New SqlCommand(selectPathsQuery, conn)
+                    cmdSelect.Parameters.AddWithValue("@Id", recordId)
+                    conn.Open()
+                    Using reader As SqlDataReader = cmdSelect.ExecuteReader()
+                        If reader.Read() Then
+                            If Not IsDBNull(reader("AadhaarCardPath")) Then filesToPrune.Add(reader("AadhaarCardPath").ToString())
+                            If Not IsDBNull(reader("PANCardPath")) Then filesToPrune.Add(reader("PANCardPath").ToString())
+                            If Not IsDBNull(reader("PassportDLPath")) Then filesToPrune.Add(reader("PassportDLPath").ToString())
+                            If Not IsDBNull(reader("AddressProofPath")) Then filesToPrune.Add(reader("AddressProofPath").ToString())
+                            If Not IsDBNull(reader("SignatureScanPath")) Then filesToPrune.Add(reader("SignatureScanPath").ToString())
+                        End If
+                    End Using
+                End Using
+            End Using
+
+            ' 2. Delete the database record
             Using conn As New SqlConnection(connString)
                 Using cmd As New SqlCommand(deleteQuery, conn)
                     cmd.Parameters.AddWithValue("@Id", recordId)
@@ -168,6 +190,21 @@ Public Class ManageKYC
                     cmd.ExecuteNonQuery()
                 End Using
             End Using
+
+            ' 3. Safely delete physical files from server disk storage
+            For Each pathStr As String In filesToPrune
+                If Not String.IsNullOrEmpty(pathStr) Then
+                    Try
+                        Dim physicalPath As String = Server.MapPath(pathStr)
+                        If System.IO.File.Exists(physicalPath) Then
+                            System.IO.File.Delete(physicalPath)
+                        End If
+                    Catch exFile As Exception
+                        ' File could not be deleted (e.g. permission or lock issues), log and proceed
+                        System.Diagnostics.Debug.WriteLine("Failed to delete local file: " & exFile.Message)
+                    End Try
+                End If
+            Next
 
             ' Redirect GET back to prevent F5 resubmissions - set to True for secure thread abortion
             Response.Redirect("ManageKYC.aspx?deleted=1", True)
@@ -315,21 +352,21 @@ Public Class ManageKYC
                             If lblDLDOB IsNot Nothing Then lblDLDOB.Text = If(reader("DrivingLicenceDOB") Is DBNull.Value, "N/A", Convert.ToDateTime(reader("DrivingLicenceDOB")).ToString("yyyy-MM-dd"))
                             If lblDLName IsNot Nothing Then lblDLName.Text = If(reader("DrivingLicenceName") Is DBNull.Value, "N/A", reader("DrivingLicenceName").ToString())
 
-                            ' Document links
-                            If lnkDocAadhaar IsNot Nothing Then lnkDocAadhaar.NavigateUrl = ResolveUrl(reader("AadhaarCardPath").ToString())
-                            If lnkDocPAN IsNot Nothing Then lnkDocPAN.NavigateUrl = ResolveUrl(reader("PANCardPath").ToString())
-                            If lnkDocSignature IsNot Nothing Then lnkDocSignature.NavigateUrl = ResolveUrl(reader("SignatureScanPath").ToString())
+                            ' Secure Document links routing via Download.aspx streaming gateway (hides raw paths)
+                            If lnkDocAadhaar IsNot Nothing Then lnkDocAadhaar.NavigateUrl = String.Format("Download.aspx?id={0}&type=Aadhaar", recordId)
+                            If lnkDocPAN IsNot Nothing Then lnkDocPAN.NavigateUrl = String.Format("Download.aspx?id={0}&type=PAN", recordId)
+                            If lnkDocSignature IsNot Nothing Then lnkDocSignature.NavigateUrl = String.Format("Download.aspx?id={0}&type=Signature", recordId)
 
                             If reader("PassportDLPath") IsNot DBNull.Value AndAlso Not String.IsNullOrEmpty(reader("PassportDLPath").ToString()) Then
                                 If pnlDocPassportDL IsNot Nothing Then pnlDocPassportDL.Visible = True
-                                If lnkDocPassportDL IsNot Nothing Then lnkDocPassportDL.NavigateUrl = ResolveUrl(reader("PassportDLPath").ToString())
+                                If lnkDocPassportDL IsNot Nothing Then lnkDocPassportDL.NavigateUrl = String.Format("Download.aspx?id={0}&type=PassportDL", recordId)
                             Else
                                 If pnlDocPassportDL IsNot Nothing Then pnlDocPassportDL.Visible = False
                             End If
 
                             If reader("AddressProofPath") IsNot DBNull.Value AndAlso Not String.IsNullOrEmpty(reader("AddressProofPath").ToString()) Then
                                 If pnlDocAddress IsNot Nothing Then pnlDocAddress.Visible = True
-                                If lnkDocAddress IsNot Nothing Then lnkDocAddress.NavigateUrl = ResolveUrl(reader("AddressProofPath").ToString())
+                                If lnkDocAddress IsNot Nothing Then lnkDocAddress.NavigateUrl = String.Format("Download.aspx?id={0}&type=AddressProof", recordId)
                             Else
                                 If pnlDocAddress IsNot Nothing Then pnlDocAddress.Visible = False
                             End If
