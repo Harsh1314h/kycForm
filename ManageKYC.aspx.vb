@@ -489,75 +489,14 @@ Public Class ManageKYC
         Catch ex As Exception
             Throw New Exception("Failed to ensure database creation on LocalDB: " & ex.Message, ex)
         End Try
-
+        ' Create Table if missing
         Try
             Using conn As New SqlConnection(mainConnStr)
-                Dim tblQuery As String = "IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[KYCDetails]') AND type in (N'U')) " & _
-                    "CREATE TABLE [dbo].[KYCDetails] (" & _
-                    "[Id] INT IDENTITY(1,1) PRIMARY KEY, " & _
-                    "[AccountType] NVARCHAR(50) NOT NULL, " & _
-                    "[CustomerType] NVARCHAR(50) NOT NULL, " & _
-                    "[PreferredBranch] NVARCHAR(100) NOT NULL, " & _
-                    "[ApplicationDate] DATE NOT NULL, " & _
-                    "[Email] NVARCHAR(150) NOT NULL, " & _
-                    "[EmailOTP] NVARCHAR(10) NOT NULL, " & _
-                    "[MobileNumber] NVARCHAR(15) NOT NULL, " & _
-                    "[AlternateMobileNumber] NVARCHAR(15) NULL, " & _
-                    "[AadhaarMobileOTP] NVARCHAR(10) NOT NULL, " & _
-                    "[AadhaarNumber] NVARCHAR(20) NOT NULL CONSTRAINT UQ_Aadhaar UNIQUE, " & _
-                    "[AadhaarOTP] NVARCHAR(10) NOT NULL, " & _
-                    "[AadhaarName] NVARCHAR(100) NOT NULL, " & _
-                    "[AadhaarDOB] DATE NOT NULL, " & _
-                    "[Gender] NVARCHAR(20) NOT NULL, " & _
-                    "[FullLegalName] NVARCHAR(100) NOT NULL, " & _
-                    "[FatherName] NVARCHAR(100) NOT NULL, " & _
-                    "[MotherName] NVARCHAR(100) NOT NULL, " & _
-                    "[SpouseGuardianName] NVARCHAR(100) NOT NULL, " & _
-                    "[MaritalStatus] NVARCHAR(50) NOT NULL, " & _
-                    "[Nationality] NVARCHAR(50) NOT NULL, " & _
-                    "[Religion] NVARCHAR(50) NULL, " & _
-                    "[ResidentialStatus] NVARCHAR(50) NOT NULL, " & _
-                    "[PlaceOfBirth] NVARCHAR(100) NULL, " & _
-                    "[CountryOfBirth] NVARCHAR(100) NULL, " & _
-                    "[StreetHouseLandmark] NVARCHAR(250) NOT NULL, " & _
-                    "[AreaLocality] NVARCHAR(150) NOT NULL, " & _
-                    "[LocationVillageTown] NVARCHAR(150) NOT NULL, " & _
-                    "[PostOffice] NVARCHAR(100) NOT NULL, " & _
-                    "[CityDistrict] NVARCHAR(100) NOT NULL, " & _
-                    "[State] NVARCHAR(100) NOT NULL, " & _
-                    "[Country] NVARCHAR(100) NOT NULL, " & _
-                    "[Pincode] NVARCHAR(10) NOT NULL, " & _
-                    "[TypeOfAddress] NVARCHAR(50) NOT NULL, " & _
-                    "[IsPermanentAddressSame] NVARCHAR(5) NOT NULL, " & _
-                    "[PermanentAddress] NVARCHAR(500) NULL, " & _
-                    "[OccupationType] NVARCHAR(50) NOT NULL, " & _
-                    "[EmployerName] NVARCHAR(150) NULL, " & _
-                    "[NatureOfBusiness] NVARCHAR(150) NULL, " & _
-                    "[Designation] NVARCHAR(100) NULL, " & _
-                    "[AnnualIncomeRange] NVARCHAR(100) NOT NULL, " & _
-                    "[SourceOfFunds] NVARCHAR(100) NOT NULL, " & _
-                    "[PANNumber] NVARCHAR(20) NOT NULL CONSTRAINT UQ_PAN UNIQUE, " & _
-                    "[PANHolderName] NVARCHAR(100) NOT NULL, " & _
-                    "[DrivingLicenceNumber] NVARCHAR(30) NULL, " & _
-                    "[DrivingLicenceDOB] DATE NULL, " & _
-                    "[DrivingLicenceName] NVARCHAR(100) NULL, " & _
-                    "[AadhaarCardPath] NVARCHAR(500) NOT NULL, " & _
-                    "[PANCardPath] NVARCHAR(500) NOT NULL, " & _
-                    "[PassportDLPath] NVARCHAR(500) NULL, " & _
-                    "[AddressProofPath] NVARCHAR(500) NULL, " & _
-                    "[SignatureScanPath] NVARCHAR(500) NOT NULL, " & _
-                    "[CreatedAt] DATETIME DEFAULT GETDATE(), " & _
-                    "[VerificationStatus] NVARCHAR(20) DEFAULT 'Pending' NOT NULL" & _
-                    ");"
-        Using cmd As New SqlCommand(tblQuery, conn)
+                Dim schemaFilePath As String = Server.MapPath("~/App_Data/Schema.sql")
+                Dim tblQuery As String = System.IO.File.ReadAllText(schemaFilePath)
+                Using cmd As New SqlCommand(tblQuery, conn)
                     conn.Open()
                     cmd.ExecuteNonQuery()
-                End Using
-
-                Dim alterQuery As String = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[KYCDetails]') AND name = 'VerificationStatus') " & _
-                    "ALTER TABLE [dbo].[KYCDetails] ADD [VerificationStatus] NVARCHAR(20) DEFAULT 'Pending' NOT NULL;"
-                Using cmdAlter As New SqlCommand(alterQuery, conn)
-                    cmdAlter.ExecuteNonQuery()
                 End Using
 
                 ' Dynamically compile all 7 Stored Procedures inside local SQL Server DB
@@ -572,143 +511,23 @@ Public Class ManageKYC
     ''' Compiles all necessary compiled procedures inside the database dynamically.
     ''' </summary>
     Private Sub BootstrapStoredProcedures(ByVal conn As SqlConnection)
-        ' 1. sp_InsertKYCRecord
-        CreateSPIfMissing(conn, "sp_InsertKYCRecord", _
-            "CREATE PROCEDURE [dbo].[sp_InsertKYCRecord] " & vbCrLf & _
-            "    @AcType NVARCHAR(50), @CustType NVARCHAR(50), @Branch NVARCHAR(100), @AppDate DATE, @Email NVARCHAR(150), @EmailOTP NVARCHAR(10), " & vbCrLf & _
-            "    @Mobile NVARCHAR(15), @AltMobile NVARCHAR(15), @AadhaarMobileOTP NVARCHAR(10), @AadhaarNum NVARCHAR(20), @AadhaarOTP NVARCHAR(10), " & vbCrLf & _
-            "    @AadhaarName NVARCHAR(100), @AadhaarDOB DATE, @Gender NVARCHAR(20), @FullName NVARCHAR(100), @FatherName NVARCHAR(100), " & vbCrLf & _
-            "    @MotherName NVARCHAR(100), @Spouse NVARCHAR(100), @Marital NVARCHAR(50), @Nat NVARCHAR(50), @Rel NVARCHAR(50), @ResStatus NVARCHAR(50), " & vbCrLf & _
-            "    @PlaceOfBirth NVARCHAR(100), @CountryOfBirth NVARCHAR(100), @Street NVARCHAR(250), @Locality NVARCHAR(150), @Town NVARCHAR(150), " & vbCrLf & _
-            "    @PO NVARCHAR(100), @City NVARCHAR(100), @State NVARCHAR(100), @Country NVARCHAR(100), @Pin NVARCHAR(10), @AddrType NVARCHAR(50), " & vbCrLf & _
-            "    @IsSame NVARCHAR(5), @PermAddr NVARCHAR(500), @Occ NVARCHAR(50), @EmpName NVARCHAR(150), @BusNature NVARCHAR(150), @Role NVARCHAR(100), " & vbCrLf & _
-            "    @Income NVARCHAR(100), @Funds NVARCHAR(100), @PAN NVARCHAR(20), @PANName NVARCHAR(100), @DLNum NVARCHAR(30), @DLDOB DATE, @DLName NVARCHAR(100), " & vbCrLf & _
-            "    @AadhaarPath NVARCHAR(500), @PANPath NVARCHAR(500), @DLPath NVARCHAR(500), @AddrPath NVARCHAR(500), @SignPath NVARCHAR(500) " & vbCrLf & _
-            "AS " & vbCrLf & _
-            "BEGIN " & vbCrLf & _
-            "    SET NOCOUNT ON; " & vbCrLf & _
-            "    INSERT INTO [dbo].[KYCDetails] ( " & vbCrLf & _
-            "        [AccountType], [CustomerType], [PreferredBranch], [ApplicationDate], [Email], [EmailOTP], [MobileNumber], " & vbCrLf & _
-            "        [AlternateMobileNumber], [AadhaarMobileOTP], [AadhaarNumber], [AadhaarOTP], [AadhaarName], [AadhaarDOB], [Gender], " & vbCrLf & _
-            "        [FullLegalName], [FatherName], [MotherName], [SpouseGuardianName], [MaritalStatus], [Nationality], [Religion], " & vbCrLf & _
-            "        [ResidentialStatus], [PlaceOfBirth], [CountryOfBirth], [StreetHouseLandmark], [AreaLocality], [LocationVillageTown], " & vbCrLf & _
-            "        [PostOffice], [CityDistrict], [State], [Country], [Pincode], [TypeOfAddress], [IsPermanentAddressSame], [PermanentAddress], " & vbCrLf & _
-            "        [OccupationType], [EmployerName], [NatureOfBusiness], [Designation], [AnnualIncomeRange], [SourceOfFunds], " & vbCrLf & _
-            "        [PANNumber], [PANHolderName], [DrivingLicenceNumber], [DrivingLicenceDOB], [DrivingLicenceName], " & vbCrLf & _
-            "        [AadhaarCardPath], [PANCardPath], [PassportDLPath], [AddressProofPath], [SignatureScanPath] " & vbCrLf & _
-            "    ) VALUES ( " & vbCrLf & _
-            "        @AcType, @CustType, @Branch, @AppDate, @Email, @EmailOTP, @Mobile, " & vbCrLf & _
-            "        @AltMobile, @AadhaarMobileOTP, @AadhaarNum, @AadhaarOTP, @AadhaarName, @AadhaarDOB, @Gender, " & vbCrLf & _
-            "        @FullName, @FatherName, @MotherName, @Spouse, @Marital, @Nat, @Rel, " & vbCrLf & _
-            "        @ResStatus, @PlaceOfBirth, @CountryOfBirth, @Street, @Locality, @Town, " & vbCrLf & _
-            "        @PO, @City, @State, @Country, @Pin, @AddrType, @IsSame, @PermAddr, " & vbCrLf & _
-            "        @Occ, @EmpName, @BusNature, @Role, @Income, @Funds, " & vbCrLf & _
-            "        @PAN, @PANName, @DLNum, @DLDOB, @DLName, " & vbCrLf & _
-            "        @AadhaarPath, @PANPath, @DLPath, @AddrPath, @SignPath " & vbCrLf & _
-            "    ); " & vbCrLf & _
-            "    SELECT SCOPE_IDENTITY() AS [NewRecordId]; " & vbCrLf & _
-            "END")
+        Dim sps As String() = { _
+            "sp_InsertKYCRecord", _
+            "sp_UpdateKYCRecord", _
+            "sp_DeleteKYCRecord", _
+            "sp_GetKYCRecordById", _
+            "sp_SearchKYCRecords", _
+            "sp_UpdateVerificationStatus", _
+            "sp_CheckKYCDuplicates" _
+        }
 
-        ' 2. sp_UpdateKYCRecord
-        CreateSPIfMissing(conn, "sp_UpdateKYCRecord", _
-            "CREATE PROCEDURE [dbo].[sp_UpdateKYCRecord] " & vbCrLf & _
-            "    @Id INT, @AcType NVARCHAR(50), @CustType NVARCHAR(50), @Branch NVARCHAR(100), @Email NVARCHAR(150), @EmailOTP NVARCHAR(10), " & vbCrLf & _
-            "    @Mobile NVARCHAR(15), @AltMobile NVARCHAR(15), @AadhaarMobileOTP NVARCHAR(10), @AadhaarNum NVARCHAR(20), @AadhaarOTP NVARCHAR(10), " & vbCrLf & _
-            "    @AadhaarName NVARCHAR(100), @AadhaarDOB DATE, @Gender NVARCHAR(20), @FullName NVARCHAR(100), @FatherName NVARCHAR(100), " & vbCrLf & _
-            "    @MotherName NVARCHAR(100), @Spouse NVARCHAR(100), @Marital NVARCHAR(50), @Nat NVARCHAR(50), @Rel NVARCHAR(50), @ResStatus NVARCHAR(50), " & vbCrLf & _
-            "    @PlaceOfBirth NVARCHAR(100), @CountryOfBirth NVARCHAR(100), @Street NVARCHAR(250), @Locality NVARCHAR(150), @Town NVARCHAR(150), " & vbCrLf & _
-            "    @PO NVARCHAR(100), @City NVARCHAR(100), @State NVARCHAR(100), @Country NVARCHAR(100), @Pin NVARCHAR(10), @AddrType NVARCHAR(50), " & vbCrLf & _
-            "    @IsSame NVARCHAR(5), @PermAddr NVARCHAR(500), @Occ NVARCHAR(50), @EmpName NVARCHAR(150), @BusNature NVARCHAR(150), @Role NVARCHAR(100), " & vbCrLf & _
-            "    @Income NVARCHAR(100), @Funds NVARCHAR(100), @PAN NVARCHAR(20), @PANName NVARCHAR(100), @DLNum NVARCHAR(30), @DLDOB DATE, @DLName NVARCHAR(100), " & vbCrLf & _
-            "    @AadhaarPath NVARCHAR(500), @PANPath NVARCHAR(500), @DLPath NVARCHAR(500), @AddrPath NVARCHAR(500), @SignPath NVARCHAR(500) " & vbCrLf & _
-            "AS " & vbCrLf & _
-            "BEGIN " & vbCrLf & _
-            "    SET NOCOUNT ON; " & vbCrLf & _
-            "    UPDATE [dbo].[KYCDetails] SET " & vbCrLf & _
-            "        [AccountType] = @AcType, [CustomerType] = @CustType, [PreferredBranch] = @Branch, [Email] = @Email, [EmailOTP] = @EmailOTP, " & vbCrLf & _
-            "        [MobileNumber] = @Mobile, [AlternateMobileNumber] = @AltMobile, [AadhaarMobileOTP] = @AadhaarMobileOTP, " & vbCrLf & _
-            "        [AadhaarNumber] = @AadhaarNum, [AadhaarOTP] = @AadhaarOTP, [AadhaarName] = @AadhaarName, [AadhaarDOB] = @AadhaarDOB, " & vbCrLf & _
-            "        [Gender] = @Gender, [FullLegalName] = @FullName, [FatherName] = @FatherName, [MotherName] = @MotherName, " & vbCrLf & _
-            "        [SpouseGuardianName] = @Spouse, [MaritalStatus] = @Marital, [Nationality] = @Nat, [Religion] = @Rel, " & vbCrLf & _
-            "        [ResidentialStatus] = @ResStatus, [PlaceOfBirth] = @PlaceOfBirth, [CountryOfBirth] = @CountryOfBirth, " & vbCrLf & _
-            "        [StreetHouseLandmark] = @Street, [AreaLocality] = @Locality, [LocationVillageTown] = @Town, " & vbCrLf & _
-            "        [PostOffice] = @PO, [CityDistrict] = @City, [State] = @State, [Country] = @Country, [Pincode] = @Pin, " & vbCrLf & _
-            "        [TypeOfAddress] = @AddrType, [IsPermanentAddressSame] = @IsSame, [PermanentAddress] = @PermAddr, " & vbCrLf & _
-            "        [OccupationType] = @Occ, [EmployerName] = @EmpName, [NatureOfBusiness] = @BusNature, [Designation] = @Role, " & vbCrLf & _
-            "        [AnnualIncomeRange] = @Income, [SourceOfFunds] = @Funds, [PANNumber] = @PAN, [PANHolderName] = @PANName, " & vbCrLf & _
-            "        [DrivingLicenceNumber] = @DLNum, [DrivingLicenceDOB] = @DLDOB, [DrivingLicenceName] = @DLName, " & vbCrLf & _
-            "        [AadhaarCardPath] = @AadhaarPath, [PANCardPath] = @PANPath, [PassportDLPath] = @DLPath, " & vbCrLf & _
-            "        [AddressProofPath] = @AddrPath, [SignatureScanPath] = @SignPath " & vbCrLf & _
-            "    WHERE [Id] = @Id; " & vbCrLf & _
-            "END")
-
-        ' 3. sp_DeleteKYCRecord
-        CreateSPIfMissing(conn, "sp_DeleteKYCRecord", _
-            "CREATE PROCEDURE [dbo].[sp_DeleteKYCRecord] " & vbCrLf & _
-            "    @Id INT " & vbCrLf & _
-            "AS " & _
-            "BEGIN " & vbCrLf & _
-            "    SET NOCOUNT ON; " & vbCrLf & _
-            "    SELECT [AadhaarCardPath], [PANCardPath], [PassportDLPath], [AddressProofPath], [SignatureScanPath] " & vbCrLf & _
-            "    FROM [dbo].[KYCDetails] " & vbCrLf & _
-            "    WHERE [Id] = @Id; " & vbCrLf & _
-            "    DELETE FROM [dbo].[KYCDetails] WHERE [Id] = @Id; " & vbCrLf & _
-            "END")
-
-        ' 4. sp_GetKYCRecordById
-        CreateSPIfMissing(conn, "sp_GetKYCRecordById", _
-            "CREATE PROCEDURE [dbo].[sp_GetKYCRecordById] " & vbCrLf & _
-            "    @Id INT " & vbCrLf & _
-            "AS " & vbCrLf & _
-            "BEGIN " & vbCrLf & _
-            "    SET NOCOUNT ON; " & vbCrLf & _
-            "    SELECT * FROM [dbo].[KYCDetails] WHERE [Id] = @Id; " & vbCrLf & _
-            "END")
-
-        ' 5. sp_SearchKYCRecords
-        CreateSPIfMissing(conn, "sp_SearchKYCRecords", _
-            "CREATE PROCEDURE [dbo].[sp_SearchKYCRecords] " & vbCrLf & _
-            "    @Name NVARCHAR(100) = NULL, " & vbCrLf & _
-            "    @Aadhaar NVARCHAR(20) = NULL, " & vbCrLf & _
-            "    @PAN NVARCHAR(20) = NULL, " & vbCrLf & _
-            "    @Mobile NVARCHAR(15) = NULL " & vbCrLf & _
-            "AS " & vbCrLf & _
-            "BEGIN " & vbCrLf & _
-            "    SET NOCOUNT ON; " & vbCrLf & _
-            "    SELECT [Id], [FullLegalName], [AadhaarNumber], [PANNumber], [MobileNumber], [ApplicationDate], [VerificationStatus] " & vbCrLf & _
-            "    FROM [dbo].[KYCDetails] " & vbCrLf & _
-            "    WHERE (@Name IS NULL OR [FullLegalName] LIKE '%' + @Name + '%') " & vbCrLf & _
-            "      AND (@Aadhaar IS NULL OR [AadhaarNumber] = @Aadhaar) " & vbCrLf & _
-            "      AND (@PAN IS NULL OR [PANNumber] = @PAN) " & vbCrLf & _
-            "      AND (@Mobile IS NULL OR [MobileNumber] = @Mobile) " & vbCrLf & _
-            "    ORDER BY [CreatedAt] DESC; " & vbCrLf & _
-            "END")
-
-        ' 6. sp_UpdateVerificationStatus
-        CreateSPIfMissing(conn, "sp_UpdateVerificationStatus", _
-            "CREATE PROCEDURE [dbo].[sp_UpdateVerificationStatus] " & vbCrLf & _
-            "    @Id INT, " & vbCrLf & _
-            "    @Status NVARCHAR(20) " & vbCrLf & _
-            "AS " & vbCrLf & _
-            "BEGIN " & vbCrLf & _
-            "    SET NOCOUNT ON; " & vbCrLf & _
-            "    UPDATE [dbo].[KYCDetails] SET [VerificationStatus] = @Status WHERE [Id] = @Id; " & vbCrLf & _
-            "END")
-
-        ' 7. sp_CheckKYCDuplicates
-        CreateSPIfMissing(conn, "sp_CheckKYCDuplicates", _
-            "CREATE PROCEDURE [dbo].[sp_CheckKYCDuplicates] " & vbCrLf & _
-            "    @Aadhaar NVARCHAR(20), " & vbCrLf & _
-            "    @PAN NVARCHAR(20), " & vbCrLf & _
-            "    @ExcludeId INT = 0 " & vbCrLf & _
-            "AS " & vbCrLf & _
-            "BEGIN " & vbCrLf & _
-            "    SET NOCOUNT ON; " & vbCrLf & _
-            "    SELECT " & vbCrLf & _
-            "        SUM(CASE WHEN [AadhaarNumber] = @Aadhaar AND [Id] <> @ExcludeId THEN 1 ELSE 0 END) As AadhaarCount, " & vbCrLf & _
-            "        SUM(CASE WHEN [PANNumber] = @PAN AND [Id] <> @ExcludeId THEN 1 ELSE 0 END) As PANCount " & vbCrLf & _
-            "    FROM [dbo].[KYCDetails]; " & vbCrLf & _
-            "END")
+        For Each spName As String In sps
+            Dim path As String = Server.MapPath(String.Format("~/App_Data/StoredProcedures/{0}.sql", spName))
+            If System.IO.File.Exists(path) Then
+                Dim createSql As String = System.IO.File.ReadAllText(path)
+                CreateSPIfMissing(conn, spName, createSql)
+            End If
+        Next
     End Sub
 
     Private Sub CreateSPIfMissing(ByVal conn As SqlConnection, ByVal spName As String, ByVal createSql As String)

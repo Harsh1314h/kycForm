@@ -84,6 +84,14 @@
     <Content Include="Download.aspx" />
     <Content Include="Web.config" />
     <Content Include="css\style.css" />
+    <Content Include="App_Data\Schema.sql" />
+    <Content Include="App_Data\StoredProcedures\sp_InsertKYCRecord.sql" />
+    <Content Include="App_Data\StoredProcedures\sp_UpdateKYCRecord.sql" />
+    <Content Include="App_Data\StoredProcedures\sp_DeleteKYCRecord.sql" />
+    <Content Include="App_Data\StoredProcedures\sp_GetKYCRecordById.sql" />
+    <Content Include="App_Data\StoredProcedures\sp_SearchKYCRecords.sql" />
+    <Content Include="App_Data\StoredProcedures\sp_UpdateVerificationStatus.sql" />
+    <Content Include="App_Data\StoredProcedures\sp_CheckKYCDuplicates.sql" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Default.aspx.vb">
