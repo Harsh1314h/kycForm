@@ -52,7 +52,8 @@ Public Class _Default
             EnsureDatabaseSchema()
 
             Using conn As New SqlConnection(connString)
-                Using cmd As New SqlCommand(selectQuery, conn)
+                Using cmd As New SqlCommand("sp_GetKYCRecordById", conn)
+                    cmd.CommandType = CommandType.StoredProcedure
                     cmd.Parameters.AddWithValue("@Id", editId)
                     conn.Open()
                     Using reader As SqlDataReader = cmd.ExecuteReader()
@@ -341,47 +342,13 @@ Public Class _Default
                 Return
             End If
 
-            ' 5. Perform Secure Database Insertion or Updating using Parameterized Queries
+            ' 5. Perform Secure Database Insertion or Updating using Compiled Stored Procedures
             Dim connString As String = WebConfigurationManager.ConnectionStrings(CONNECTION_STRING_KEY).ConnectionString
-            Dim sqlQuery As String = ""
-
-            If isEditMode Then
-                sqlQuery = "UPDATE KYCDetails SET " & _
-                    "AccountType = @AcType, CustomerType = @CustType, PreferredBranch = @Branch, Email = @Email, EmailOTP = @EmailOTP, " & _
-                    "MobileNumber = @Mobile, AlternateMobileNumber = @AltMobile, AadhaarMobileOTP = @AadhaarMobileOTP, " & _
-                    "AadhaarNumber = @AadhaarNum, AadhaarOTP = @AadhaarOTP, AadhaarName = @AadhaarName, AadhaarDOB = @AadhaarDOB, " & _
-                    "Gender = @Gender, FullLegalName = @FullName, FatherName = @FatherName, MotherName = @MotherName, " & _
-                    "SpouseGuardianName = @Spouse, MaritalStatus = @Marital, Nationality = @Nat, Religion = @Rel, " & _
-                    "ResidentialStatus = @ResStatus, PlaceOfBirth = @PlaceOfBirth, CountryOfBirth = @CountryOfBirth, " & _
-                    "StreetHouseLandmark = @Street, AreaLocality = @Locality, LocationVillageTown = @Town, " & _
-                    "PostOffice = @PO, CityDistrict = @City, State = @State, Country = @Country, Pincode = @Pin, " & _
-                    "TypeOfAddress = @AddrType, IsPermanentAddressSame = @IsSame, PermanentAddress = @PermAddr, " & _
-                    "OccupationType = @Occ, EmployerName = @EmpName, NatureOfBusiness = @BusNature, Designation = @Role, " & _
-                    "AnnualIncomeRange = @Income, SourceOfFunds = @Funds, PANNumber = @PAN, PANHolderName = @PANName, " & _
-                    "DrivingLicenceNumber = @DLNum, DrivingLicenceDOB = @DLDOB, DrivingLicenceName = @DLName, " & _
-                    "AadhaarCardPath = @AadhaarPath, PANCardPath = @PANPath, PassportDLPath = @DLPath, " & _
-                    "AddressProofPath = @AddrPath, SignatureScanPath = @SignPath " & _
-                    "WHERE Id = @Id"
-            Else
-                sqlQuery = "INSERT INTO KYCDetails (" & _
-                    "AccountType, CustomerType, PreferredBranch, ApplicationDate, Email, EmailOTP, MobileNumber, " & _
-                    "AlternateMobileNumber, AadhaarMobileOTP, AadhaarNumber, AadhaarOTP, AadhaarName, AadhaarDOB, Gender, " & _
-                    "FullLegalName, FatherName, MotherName, SpouseGuardianName, MaritalStatus, Nationality, Religion, " & _
-                    "ResidentialStatus, PlaceOfBirth, CountryOfBirth, StreetHouseLandmark, AreaLocality, LocationVillageTown, " & _
-                    "PostOffice, CityDistrict, State, Country, Pincode, TypeOfAddress, IsPermanentAddressSame, PermanentAddress, " & _
-                    "OccupationType, EmployerName, NatureOfBusiness, Designation, AnnualIncomeRange, SourceOfFunds, " & _
-                    "PANNumber, PANHolderName, DrivingLicenceNumber, DrivingLicenceDOB, DrivingLicenceName, " & _
-                    "AadhaarCardPath, PANCardPath, PassportDLPath, AddressProofPath, SignatureScanPath" & _
-                    ") VALUES (" & _
-                    "@AcType, @CustType, @Branch, @AppDate, @Email, @EmailOTP, @Mobile, @AltMobile, @AadhaarMobileOTP, " & _
-                    "@AadhaarNum, @AadhaarOTP, @AadhaarName, @AadhaarDOB, @Gender, @FullName, @FatherName, @MotherName, " & _
-                    "@Spouse, @Marital, @Nat, @Rel, @ResStatus, @PlaceOfBirth, @CountryOfBirth, @Street, @Locality, @Town, " & _
-                    "@PO, @City, @State, @Country, @Pin, @AddrType, @IsSame, @PermAddr, @Occ, @EmpName, @BusNature, @Role, " & _
-                    "@Income, @Funds, @PAN, @PANName, @DLNum, @DLDOB, @DLName, @AadhaarPath, @PANPath, @DLPath, @AddrPath, @SignPath)"
-            End If
 
             Using conn As New SqlConnection(connString)
-                Using cmd As New SqlCommand(sqlQuery, conn)
+                Dim procName As String = If(isEditMode, "sp_UpdateKYCRecord", "sp_InsertKYCRecord")
+                Using cmd As New SqlCommand(procName, conn)
+                    cmd.CommandType = CommandType.StoredProcedure
                     ' Bind all parameters safely
                     cmd.Parameters.AddWithValue("@AcType", ddlAcType.SelectedValue)
                     cmd.Parameters.AddWithValue("@CustType", custType)
@@ -591,7 +558,8 @@ Public Class _Default
 
         Try
             Using conn As New SqlConnection(connString)
-                Using cmd As New SqlCommand(query, conn)
+                Using cmd As New SqlCommand("sp_CheckKYCDuplicates", conn)
+                    cmd.CommandType = CommandType.StoredProcedure
                     cmd.Parameters.AddWithValue("@Aadhaar", aadhaar)
                     cmd.Parameters.AddWithValue("@PAN", pan)
                     cmd.Parameters.AddWithValue("@ExcludeId", excludeId)
@@ -712,10 +680,169 @@ Public Class _Default
                 Using cmdAlter As New SqlCommand(alterQuery, conn)
                     cmdAlter.ExecuteNonQuery()
                 End Using
+
+                ' Dynamically compile all 7 Stored Procedures inside local SQL Server DB
+                BootstrapStoredProcedures(conn)
             End Using
         Catch ex As Exception
-            Throw New Exception("Failed to bootstrap table structures on KYCDB: " & ex.Message, ex)
+            Throw New Exception("Failed to bootstrap table structures and Stored Procedures on KYCDB: " & ex.Message, ex)
         End Try
+    End Sub
+
+    ''' <summary>
+    ''' Compiles all necessary compiled procedures inside the database dynamically.
+    ''' </summary>
+    Private Sub BootstrapStoredProcedures(ByVal conn As SqlConnection)
+        ' 1. sp_InsertKYCRecord
+        CreateSPIfMissing(conn, "sp_InsertKYCRecord", _
+            "CREATE PROCEDURE [dbo].[sp_InsertKYCRecord] " & vbCrLf & _
+            "    @AcType NVARCHAR(50), @CustType NVARCHAR(50), @Branch NVARCHAR(100), @AppDate DATE, @Email NVARCHAR(150), @EmailOTP NVARCHAR(10), " & vbCrLf & _
+            "    @Mobile NVARCHAR(15), @AltMobile NVARCHAR(15), @AadhaarMobileOTP NVARCHAR(10), @AadhaarNum NVARCHAR(20), @AadhaarOTP NVARCHAR(10), " & vbCrLf & _
+            "    @AadhaarName NVARCHAR(100), @AadhaarDOB DATE, @Gender NVARCHAR(20), @FullName NVARCHAR(100), @FatherName NVARCHAR(100), " & vbCrLf & _
+            "    @MotherName NVARCHAR(100), @Spouse NVARCHAR(100), @Marital NVARCHAR(50), @Nat NVARCHAR(50), @Rel NVARCHAR(50), @ResStatus NVARCHAR(50), " & vbCrLf & _
+            "    @PlaceOfBirth NVARCHAR(100), @CountryOfBirth NVARCHAR(100), @Street NVARCHAR(250), @Locality NVARCHAR(150), @Town NVARCHAR(150), " & vbCrLf & _
+            "    @PO NVARCHAR(100), @City NVARCHAR(100), @State NVARCHAR(100), @Country NVARCHAR(100), @Pin NVARCHAR(10), @AddrType NVARCHAR(50), " & vbCrLf & _
+            "    @IsSame NVARCHAR(5), @PermAddr NVARCHAR(500), @Occ NVARCHAR(50), @EmpName NVARCHAR(150), @BusNature NVARCHAR(150), @Role NVARCHAR(100), " & vbCrLf & _
+            "    @Income NVARCHAR(100), @Funds NVARCHAR(100), @PAN NVARCHAR(20), @PANName NVARCHAR(100), @DLNum NVARCHAR(30), @DLDOB DATE, @DLName NVARCHAR(100), " & vbCrLf & _
+            "    @AadhaarPath NVARCHAR(500), @PANPath NVARCHAR(500), @DLPath NVARCHAR(500), @AddrPath NVARCHAR(500), @SignPath NVARCHAR(500) " & vbCrLf & _
+            "AS " & vbCrLf & _
+            "BEGIN " & vbCrLf & _
+            "    SET NOCOUNT ON; " & vbCrLf & _
+            "    INSERT INTO [dbo].[KYCDetails] ( " & vbCrLf & _
+            "        [AccountType], [CustomerType], [PreferredBranch], [ApplicationDate], [Email], [EmailOTP], [MobileNumber], " & vbCrLf & _
+            "        [AlternateMobileNumber], [AadhaarMobileOTP], [AadhaarNumber], [AadhaarOTP], [AadhaarName], [AadhaarDOB], [Gender], " & vbCrLf & _
+            "        [FullLegalName], [FatherName], [MotherName], [SpouseGuardianName], [MaritalStatus], [Nationality], [Religion], " & vbCrLf & _
+            "        [ResidentialStatus], [PlaceOfBirth], [CountryOfBirth], [StreetHouseLandmark], [AreaLocality], [LocationVillageTown], " & vbCrLf & _
+            "        [PostOffice], [CityDistrict], [State], [Country], [Pincode], [TypeOfAddress], [IsPermanentAddressSame], [PermanentAddress], " & vbCrLf & _
+            "        [OccupationType], [EmployerName], [NatureOfBusiness], [Designation], [AnnualIncomeRange], [SourceOfFunds], " & vbCrLf & _
+            "        [PANNumber], [PANHolderName], [DrivingLicenceNumber], [DrivingLicenceDOB], [DrivingLicenceName], " & vbCrLf & _
+            "        [AadhaarCardPath], [PANCardPath], [PassportDLPath], [AddressProofPath], [SignatureScanPath] " & vbCrLf & _
+            "    ) VALUES ( " & vbCrLf & _
+            "        @AcType, @CustType, @Branch, @AppDate, @Email, @EmailOTP, @Mobile, " & vbCrLf & _
+            "        @AltMobile, @AadhaarMobileOTP, @AadhaarNum, @AadhaarOTP, @AadhaarName, @AadhaarDOB, @Gender, " & vbCrLf & _
+            "        @FullName, @FatherName, @MotherName, @Spouse, @Marital, @Nat, @Rel, " & vbCrLf & _
+            "        @ResStatus, @PlaceOfBirth, @CountryOfBirth, @Street, @Locality, @Town, " & vbCrLf & _
+            "        @PO, @City, @State, @Country, @Pin, @AddrType, @IsSame, @PermAddr, " & vbCrLf & _
+            "        @Occ, @EmpName, @BusNature, @Role, @Income, @Funds, " & vbCrLf & _
+            "        @PAN, @PANName, @DLNum, @DLDOB, @DLName, " & vbCrLf & _
+            "        @AadhaarPath, @PANPath, @DLPath, @AddrPath, @SignPath " & vbCrLf & _
+            "    ); " & vbCrLf & _
+            "    SELECT SCOPE_IDENTITY() AS [NewRecordId]; " & vbCrLf & _
+            "END")
+
+        ' 2. sp_UpdateKYCRecord
+        CreateSPIfMissing(conn, "sp_UpdateKYCRecord", _
+            "CREATE PROCEDURE [dbo].[sp_UpdateKYCRecord] " & vbCrLf & _
+            "    @Id INT, @AcType NVARCHAR(50), @CustType NVARCHAR(50), @Branch NVARCHAR(100), @Email NVARCHAR(150), @EmailOTP NVARCHAR(10), " & vbCrLf & _
+            "    @Mobile NVARCHAR(15), @AltMobile NVARCHAR(15), @AadhaarMobileOTP NVARCHAR(10), @AadhaarNum NVARCHAR(20), @AadhaarOTP NVARCHAR(10), " & vbCrLf & _
+            "    @AadhaarName NVARCHAR(100), @AadhaarDOB DATE, @Gender NVARCHAR(20), @FullName NVARCHAR(100), @FatherName NVARCHAR(100), " & vbCrLf & _
+            "    @MotherName NVARCHAR(100), @Spouse NVARCHAR(100), @Marital NVARCHAR(50), @Nat NVARCHAR(50), @Rel NVARCHAR(50), @ResStatus NVARCHAR(50), " & vbCrLf & _
+            "    @PlaceOfBirth NVARCHAR(100), @CountryOfBirth NVARCHAR(100), @Street NVARCHAR(250), @Locality NVARCHAR(150), @Town NVARCHAR(150), " & vbCrLf & _
+            "    @PO NVARCHAR(100), @City NVARCHAR(100), @State NVARCHAR(100), @Country NVARCHAR(100), @Pin NVARCHAR(10), @AddrType NVARCHAR(50), " & vbCrLf & _
+            "    @IsSame NVARCHAR(5), @PermAddr NVARCHAR(500), @Occ NVARCHAR(50), @EmpName NVARCHAR(150), @BusNature NVARCHAR(150), @Role NVARCHAR(100), " & vbCrLf & _
+            "    @Income NVARCHAR(100), @Funds NVARCHAR(100), @PAN NVARCHAR(20), @PANName NVARCHAR(100), @DLNum NVARCHAR(30), @DLDOB DATE, @DLName NVARCHAR(100), " & vbCrLf & _
+            "    @AadhaarPath NVARCHAR(500), @PANPath NVARCHAR(500), @DLPath NVARCHAR(500), @AddrPath NVARCHAR(500), @SignPath NVARCHAR(500) " & vbCrLf & _
+            "AS " & vbCrLf & _
+            "BEGIN " & vbCrLf & _
+            "    SET NOCOUNT ON; " & vbCrLf & _
+            "    UPDATE [dbo].[KYCDetails] SET " & vbCrLf & _
+            "        [AccountType] = @AcType, [CustomerType] = @CustType, [PreferredBranch] = @Branch, [Email] = @Email, [EmailOTP] = @EmailOTP, " & vbCrLf & _
+            "        [MobileNumber] = @Mobile, [AlternateMobileNumber] = @AltMobile, [AadhaarMobileOTP] = @AadhaarMobileOTP, " & vbCrLf & _
+            "        [AadhaarNumber] = @AadhaarNum, [AadhaarOTP] = @AadhaarOTP, [AadhaarName] = @AadhaarName, [AadhaarDOB] = @AadhaarDOB, " & vbCrLf & _
+            "        [Gender] = @Gender, [FullLegalName] = @FullName, [FatherName] = @FatherName, [MotherName] = @MotherName, " & vbCrLf & _
+            "        [SpouseGuardianName] = @Spouse, [MaritalStatus] = @Marital, [Nationality] = @Nat, [Religion] = @Rel, " & vbCrLf & _
+            "        [ResidentialStatus] = @ResStatus, [PlaceOfBirth] = @PlaceOfBirth, [CountryOfBirth] = @CountryOfBirth, " & vbCrLf & _
+            "        [StreetHouseLandmark] = @Street, [AreaLocality] = @Locality, [LocationVillageTown] = @Town, " & vbCrLf & _
+            "        [PostOffice] = @PO, [CityDistrict] = @City, [State] = @State, [Country] = @Country, [Pincode] = @Pin, " & vbCrLf & _
+            "        [TypeOfAddress] = @AddrType, [IsPermanentAddressSame] = @IsSame, [PermanentAddress] = @PermAddr, " & vbCrLf & _
+            "        [OccupationType] = @Occ, [EmployerName] = @EmpName, [NatureOfBusiness] = @BusNature, [Designation] = @Role, " & vbCrLf & _
+            "        [AnnualIncomeRange] = @Income, [SourceOfFunds] = @Funds, [PANNumber] = @PAN, [PANHolderName] = @PANName, " & vbCrLf & _
+            "        [DrivingLicenceNumber] = @DLNum, [DrivingLicenceDOB] = @DLDOB, [DrivingLicenceName] = @DLName, " & vbCrLf & _
+            "        [AadhaarCardPath] = @AadhaarPath, [PANCardPath] = @PANPath, [PassportDLPath] = @DLPath, " & vbCrLf & _
+            "        [AddressProofPath] = @AddrPath, [SignatureScanPath] = @SignPath " & vbCrLf & _
+            "    WHERE [Id] = @Id; " & vbCrLf & _
+            "END")
+
+        ' 3. sp_DeleteKYCRecord
+        CreateSPIfMissing(conn, "sp_DeleteKYCRecord", _
+            "CREATE PROCEDURE [dbo].[sp_DeleteKYCRecord] " & vbCrLf & _
+            "    @Id INT " & vbCrLf & _
+            "AS " & _
+            "BEGIN " & vbCrLf & _
+            "    SET NOCOUNT ON; " & vbCrLf & _
+            "    SELECT [AadhaarCardPath], [PANCardPath], [PassportDLPath], [AddressProofPath], [SignatureScanPath] " & vbCrLf & _
+            "    FROM [dbo].[KYCDetails] " & vbCrLf & _
+            "    WHERE [Id] = @Id; " & vbCrLf & _
+            "    DELETE FROM [dbo].[KYCDetails] WHERE [Id] = @Id; " & vbCrLf & _
+            "END")
+
+        ' 4. sp_GetKYCRecordById
+        CreateSPIfMissing(conn, "sp_GetKYCRecordById", _
+            "CREATE PROCEDURE [dbo].[sp_GetKYCRecordById] " & vbCrLf & _
+            "    @Id INT " & vbCrLf & _
+            "AS " & vbCrLf & _
+            "BEGIN " & vbCrLf & _
+            "    SET NOCOUNT ON; " & vbCrLf & _
+            "    SELECT * FROM [dbo].[KYCDetails] WHERE [Id] = @Id; " & vbCrLf & _
+            "END")
+
+        ' 5. sp_SearchKYCRecords
+        CreateSPIfMissing(conn, "sp_SearchKYCRecords", _
+            "CREATE PROCEDURE [dbo].[sp_SearchKYCRecords] " & vbCrLf & _
+            "    @Name NVARCHAR(100) = NULL, " & vbCrLf & _
+            "    @Aadhaar NVARCHAR(20) = NULL, " & vbCrLf & _
+            "    @PAN NVARCHAR(20) = NULL, " & vbCrLf & _
+            "    @Mobile NVARCHAR(15) = NULL " & vbCrLf & _
+            "AS " & vbCrLf & _
+            "BEGIN " & vbCrLf & _
+            "    SET NOCOUNT ON; " & vbCrLf & _
+            "    SELECT [Id], [FullLegalName], [AadhaarNumber], [PANNumber], [MobileNumber], [ApplicationDate], [VerificationStatus] " & vbCrLf & _
+            "    FROM [dbo].[KYCDetails] " & vbCrLf & _
+            "    WHERE (@Name IS NULL OR [FullLegalName] LIKE '%' + @Name + '%') " & vbCrLf & _
+            "      AND (@Aadhaar IS NULL OR [AadhaarNumber] = @Aadhaar) " & vbCrLf & _
+            "      AND (@PAN IS NULL OR [PANNumber] = @PAN) " & vbCrLf & _
+            "      AND (@Mobile IS NULL OR [MobileNumber] = @Mobile) " & vbCrLf & _
+            "    ORDER BY [CreatedAt] DESC; " & vbCrLf & _
+            "END")
+
+        ' 6. sp_UpdateVerificationStatus
+        CreateSPIfMissing(conn, "sp_UpdateVerificationStatus", _
+            "CREATE PROCEDURE [dbo].[sp_UpdateVerificationStatus] " & vbCrLf & _
+            "    @Id INT, " & vbCrLf & _
+            "    @Status NVARCHAR(20) " & vbCrLf & _
+            "AS " & vbCrLf & _
+            "BEGIN " & vbCrLf & _
+            "    SET NOCOUNT ON; " & vbCrLf & _
+            "    UPDATE [dbo].[KYCDetails] SET [VerificationStatus] = @Status WHERE [Id] = @Id; " & vbCrLf & _
+            "END")
+
+        ' 7. sp_CheckKYCDuplicates
+        CreateSPIfMissing(conn, "sp_CheckKYCDuplicates", _
+            "CREATE PROCEDURE [dbo].[sp_CheckKYCDuplicates] " & vbCrLf & _
+            "    @Aadhaar NVARCHAR(20), " & vbCrLf & _
+            "    @PAN NVARCHAR(20), " & vbCrLf & _
+            "    @ExcludeId INT = 0 " & vbCrLf & _
+            "AS " & vbCrLf & _
+            "BEGIN " & vbCrLf & _
+            "    SET NOCOUNT ON; " & vbCrLf & _
+            "    SELECT " & vbCrLf & _
+            "        SUM(CASE WHEN [AadhaarNumber] = @Aadhaar AND [Id] <> @ExcludeId THEN 1 ELSE 0 END) As AadhaarCount, " & vbCrLf & _
+            "        SUM(CASE WHEN [PANNumber] = @PAN AND [Id] <> @ExcludeId THEN 1 ELSE 0 END) As PANCount " & vbCrLf & _
+            "    FROM [dbo].[KYCDetails]; " & vbCrLf & _
+            "END")
+    End Sub
+
+    Private Sub CreateSPIfMissing(ByVal conn As SqlConnection, ByVal spName As String, ByVal createSql As String)
+        Dim checkQuery As String = String.Format("SELECT COUNT(*) FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[{0}]') AND type in (N'P', N'PC')", spName)
+        Dim exists As Boolean = False
+        Using cmdCheck As New SqlCommand(checkQuery, conn)
+            exists = Convert.ToInt32(cmdCheck.ExecuteScalar()) > 0
+        End Using
+        If Not exists Then
+            Using cmdCreate As New SqlCommand(createSql, conn)
+                cmdCreate.ExecuteNonQuery()
+            End Using
+        End If
     End Sub
 
     ''' <summary>

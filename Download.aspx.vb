@@ -45,19 +45,18 @@ Public Class Download
         End Select
 
         Dim connString As String = WebConfigurationManager.ConnectionStrings(CONNECTION_STRING_KEY).ConnectionString
-        ' Select target path dynamically but securely (targetColumn is hardcoded from SELECT CASE mapping, so safe from SQL injection)
-        Dim selectQuery As String = String.Format("SELECT [{0}] FROM [KYCDetails] WHERE [Id] = @Id", targetColumn)
         Dim relativePath As String = ""
-
         Try
             Using conn As New SqlConnection(connString)
-                Using cmd As New SqlCommand(selectQuery, conn)
+                Using cmd As New SqlCommand("sp_GetKYCRecordById", conn)
+                    cmd.CommandType = CommandType.StoredProcedure
                     cmd.Parameters.AddWithValue("@Id", recordId)
                     conn.Open()
-                    Dim result As Object = cmd.ExecuteScalar()
-                    If result IsNot Nothing AndAlso Not IsDBNull(result) Then
-                        relativePath = result.ToString()
-                    End If
+                    Using reader As SqlDataReader = cmd.ExecuteReader()
+                        If reader.Read() AndAlso Not IsDBNull(reader(targetColumn)) Then
+                            relativePath = reader(targetColumn).ToString()
+                        End If
+                    End Using
                 End Using
             End Using
         Catch ex As Exception
